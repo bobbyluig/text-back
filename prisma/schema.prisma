@@ -1,0 +1,62 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Participant {
+  id        Int        @id @default(autoincrement())
+  name      String
+  messages  Message[]
+  reactions Reaction[]
+}
+
+model Media {
+  id        Int     @id @default(autoincrement())
+  uri       String
+  message   Message @relation(fields: [messageId], references: [id])
+  messageId Int
+
+  @@index([messageId])
+}
+
+model Message {
+  id            Int         @id @default(autoincrement())
+  medias        Media[]
+  timestamp     DateTime
+  text          String
+  type          MessageType
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId Int
+  platform      MessagePlatform
+  reactions     Reaction[]
+
+  @@index([participantId])
+  @@index([timestamp])
+  @@index([type])
+}
+
+enum MessagePlatform {
+  MESSENGER
+}
+
+enum MessageType {
+  MEDIA
+  TEXT
+}
+
+model Reaction {
+  id            Int         @id @default(autoincrement())
+  message       Message     @relation(fields: [messageId], references: [id])
+  messageId     Int
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId Int
+  reaction      String
+
+  @@index([messageId])
+  @@index([participantId])
+  @@index([reaction])
+}
