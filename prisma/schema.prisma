@@ -8,35 +8,40 @@ datasource db {
 }
 
 model Participant {
-  id        Int        @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   name      String
   messages  Message[]
   reactions Reaction[]
 }
 
 model Media {
-  id        Int     @id @default(autoincrement())
-  uri       String
+  id Int @id @default(autoincrement())
+
   message   Message @relation(fields: [messageId], references: [id])
   messageId Int
+  uri       String
 
   @@index([messageId])
 }
 
 model Message {
-  id            Int         @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   medias        Media[]
   timestamp     DateTime
   text          String
   type          MessageType
-  participant   Participant @relation(fields: [participantId], references: [id])
+  participant   Participant     @relation(fields: [participantId], references: [id])
   participantId Int
   platform      MessagePlatform
   reactions     Reaction[]
+  words         Int
 
   @@index([participantId])
   @@index([timestamp])
   @@index([type])
+  @@index([words])
 }
 
 enum MessagePlatform {
@@ -49,7 +54,8 @@ enum MessageType {
 }
 
 model Reaction {
-  id            Int         @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   message       Message     @relation(fields: [messageId], references: [id])
   messageId     Int
   participant   Participant @relation(fields: [participantId], references: [id])

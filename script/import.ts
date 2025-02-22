@@ -104,7 +104,8 @@ async function importMessenger(dataPath: string, outMediaPath: string) {
 							reaction: reaction.reaction
 						}))
 					}
-				}
+				},
+				words: message.text.split(/\s+/).length
 			}
 		});
 

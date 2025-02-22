@@ -1,2 +1,16 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	let response: any = null;
+
+	function helloWorld() {
+		return fetch('/api').then((res) => res.text());
+	}
+
+	async function handleClick() {
+		response = await helloWorld();
+	}
+</script>
+
+<button on:click={handleClick}>Get Data</button>
+{#if response}
+	<p>{response}</p>
+{/if}
