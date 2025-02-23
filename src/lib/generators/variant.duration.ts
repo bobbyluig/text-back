@@ -35,8 +35,7 @@ export async function generateQuestion(rng: Random): Promise<Question> {
 
 	const window = messages.slice(startIndex, startIndex + windowSize);
 	const durationMs =
-		messages[messages.length - 1].timestamp.getTime() -
-		messages[messages.length - 2].timestamp.getTime();
+		window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime();
 
 	return {
 		answer: 'a',
