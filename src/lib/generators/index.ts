@@ -19,11 +19,7 @@ const VARIANTS = Array.from(QUESTION_GENERATORS.keys()).sort();
  * Generates a question given the random state, retrying until a valid question is generated.
  */
 export async function generateQuestion(rng: Random): Promise<Question> {
-	const generator = QUESTION_GENERATORS.get(rng.choice(VARIANTS));
-	if (generator === undefined) {
-		throw new Error('Question generator not found');
-	}
-
+	const generator = QUESTION_GENERATORS.get(rng.choice(VARIANTS))!;
 	while (true) {
 		try {
 			return await generator(rng);
