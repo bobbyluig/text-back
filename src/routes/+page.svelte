@@ -2,7 +2,12 @@
 	let response: any = null;
 
 	function helloWorld() {
-		return fetch('/api').then((res) => res.text());
+		return fetch(
+			'/api?' +
+				new URLSearchParams({
+					seed: ''
+				}).toString()
+		).then((res) => res.text());
 	}
 
 	async function handleClick() {

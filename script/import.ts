@@ -17,7 +17,7 @@ const prisma = new PrismaClient();
 /**
  * All supported platforms and associated import functions.
  */
-const importers: Map<string, (input: string, outMediaPath: string) => Promise<void>> = new Map([
+const importers = new Map<string, (input: string, outMediaPath: string) => Promise<void>>([
 	['messenger', importMessenger]
 ]);
 
@@ -47,7 +47,7 @@ type MessengerConversation = {
  * a JSON file with the desired conversation. Any associated media files should be in a folder named
  *  `media` in the same directory.
  */
-async function importMessenger(dataPath: string, outMediaPath: string) {
+async function importMessenger(dataPath: string, outMediaPath: string): Promise<void> {
 	const data = JSON.parse(fs.readFileSync(dataPath, 'utf8')) as MessengerConversation;
 	const mediaPath = path.join(path.dirname(dataPath), 'media');
 
@@ -99,13 +99,17 @@ async function importMessenger(dataPath: string, outMediaPath: string) {
 				},
 				reactions: {
 					createMany: {
-						data: message.reactions.map((reaction) => ({
-							participantId: participantId,
-							reaction: reaction.reaction
-						}))
+						data: message.reactions
+							.filter(
+								(reaction) => reaction.reaction !== 'unknown' && participants.has(reaction.actor)
+							)
+							.map((reaction) => ({
+								participantId: participants.get(reaction.actor)!,
+								reaction: reaction.reaction
+							}))
 					}
 				},
-				words: message.text.split(/\s+/).length
+				words: message.text.trim().split(/\s+/).length
 			}
 		});
 
@@ -127,7 +131,7 @@ async function importMessenger(dataPath: string, outMediaPath: string) {
  * Entry point for the script to import conversation data. It is possible to call this multiple
  * times with different platforms. Duplicate imports are not supported and are not checked for.
  */
-async function main() {
+async function main(): Promise<void> {
 	const args = process.argv.slice(2);
 
 	if (args.length !== 2) {
