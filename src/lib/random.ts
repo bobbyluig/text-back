@@ -19,7 +19,7 @@ export class Random {
 	/**
 	 * Returns a random element from the given array. Assumes that the array is non-empty.
 	 */
-	choice<T>(array: T[]): T {
+	choice<T>(array: Array<T>): T {
 		return array[Math.floor(this.rng() * array.length)];
 	}
 
@@ -36,5 +36,16 @@ export class Random {
 	string(length: number): string {
 		const characters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 		return Array.from({ length }, () => this.choice(characters)).join('');
+	}
+
+	/**
+	 * Shuffles the input array in place. Returns the input array.
+	 */
+	shuffle<T>(array: Array<T>): Array<T> {
+		for (let i = array.length - 1; i >= 0; i--) {
+			const j = this.range(0, i + 1);
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+		return array;
 	}
 }

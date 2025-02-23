@@ -1,5 +1,5 @@
 import { setServerState } from '$lib/server';
-import prisma from '$lib/prisma';
+import { prisma } from '$lib/prisma';
 import type { Metadata } from '$lib/types';
 import type { ServerInit } from '@sveltejs/kit';
 
