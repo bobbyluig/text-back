@@ -60,11 +60,20 @@ export async function importMessenger(dataPath: string, outMediaPath: string): P
 			continue;
 		}
 
+		const medias = [...message.media];
+		if (message.type === 'link') {
+			medias.push({ uri: message.text });
+		}
+
 		const createPromise = prisma.message.create({
 			data: {
 				medias: {
 					createMany: {
-						data: message.media.map((media) => ({ uri: `messenger/${path.basename(media.uri)}` }))
+						data: medias.map((media) => ({
+							uri: media.uri.startsWith('https://')
+								? media.uri
+								: `messenger/${path.basename(media.uri)}`
+						}))
 					}
 				},
 				participantId,
@@ -81,10 +90,10 @@ export async function importMessenger(dataPath: string, outMediaPath: string): P
 							}))
 					}
 				},
-				text: message.text,
+				text: medias.length === 0 ? message.text : '',
 				timestamp: new Date(message.timestamp),
-				type: message.type === 'media' ? 'MEDIA' : 'TEXT',
-				words: message.text.trim().split(/\s+/).length
+				type: medias.length > 0 ? 'MEDIA' : 'TEXT',
+				words: medias.length === 0 ? message.text.trim().split(/\s+/).length : 0
 			}
 		});
 
