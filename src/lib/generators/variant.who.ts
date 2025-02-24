@@ -66,11 +66,10 @@ export class WhoVariantGenerator implements VariantGenerator {
 
 		const answer = window[window.length - 1].participant.name;
 		const choices = [...getServerState().metadata.participant.distinctNames];
-		rng.shuffle(choices);
 
 		return {
 			answer,
-			choices,
+			choices: rng.shuffle(choices),
 			messages: window.map(convertMessage),
 			variant: 'who'
 		};

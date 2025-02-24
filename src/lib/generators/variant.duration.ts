@@ -101,6 +101,41 @@ export class DurationVariantGenerator implements VariantGenerator {
 			this._config.minDurationMs
 		);
 
+		const answer = this._makeDurationString(durationMs);
+		const choices = [answer];
+
+		const idealNumLower = rng.range(0, this._config.choices);
+		for (let i = 0; i < idealNumLower; i++) {
+			this._maybeAddChoice(rng, choices, durationMs, 'lower');
+		}
+
+		const idealNumHigher = this._config.choices - idealNumLower - 1;
+		for (let i = 0; i < idealNumHigher; i++) {
+			this._maybeAddChoice(rng, choices, durationMs, 'higher');
+		}
+
+		while (choices.length < this._config.choices) {
+			this._maybeAddChoice(rng, choices, durationMs, rng.uniform(0, 1) <= 0.5 ? 'lower' : 'higher');
+		}
+
+		return {
+			answer,
+			choices: rng.shuffle(choices),
+			messages: window.map(convertMessage),
+			variant: 'duration'
+		};
+	}
+
+	/**
+	 * Adds a choice if it is not already in the choices array. Takes care of bounding the scale
+	 * factor appropriately.
+	 */
+	private _maybeAddChoice(
+		rng: Random,
+		choices: Array<string>,
+		durationMs: number,
+		direction: 'lower' | 'higher'
+	) {
 		const scaleDownMaxFactor = Math.min(
 			this._config.maxScaleFactor,
 			durationMs / this._config.minDurationMs
@@ -112,40 +147,14 @@ export class DurationVariantGenerator implements VariantGenerator {
 		);
 		const scaleUpMinFactor = Math.min(this._config.minScaleFactor, scaleUpMaxFactor);
 
-		const idealNumLower = rng.range(0, this._config.choices);
-		const idealNumHigher = this._config.choices - idealNumLower - 1;
-
-		const answer = this._makeDurationString(durationMs);
-		const choices = [answer];
-
-		const maybeAddChoice = (lower: boolean) => {
-			const choiceMs = lower
+		const choiceMs =
+			direction === 'lower'
 				? durationMs / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
 				: durationMs * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
-			const choice = this._makeDurationString(choiceMs);
-			if (!choices.includes(choice)) {
-				choices.push(choice);
-			}
-		};
-
-		for (let i = 0; i < idealNumLower; i++) {
-			maybeAddChoice(true);
+		const choice = this._makeDurationString(choiceMs);
+		if (!choices.includes(choice)) {
+			choices.push(choice);
 		}
-		for (let i = 0; i < idealNumHigher; i++) {
-			maybeAddChoice(false);
-		}
-		while (choices.length < this._config.choices) {
-			maybeAddChoice(rng.uniform(0, 1) <= 0.5);
-		}
-
-		rng.shuffle(choices);
-
-		return {
-			answer,
-			choices,
-			messages: window.map(convertMessage),
-			variant: 'duration'
-		};
 	}
 
 	/**
