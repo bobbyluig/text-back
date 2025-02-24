@@ -70,7 +70,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 			choices: 3,
 			maxDurationMs: 7 * 24 * 3600 * 1000,
 			maxMessages: 10,
-			maxScaleFactor: 20,
+			maxScaleFactor: 100,
 			minDurationMs: 1000,
 			minMessages: 3,
 			minScaleFactor: 1
