@@ -25,6 +25,7 @@ export interface VariantGenerator {
  * medias or reactions, only the first will be consistently returned for simplicity.
  */
 const MESSAGE_SELECT = {
+	id: true,
 	medias: { orderBy: { id: 'asc' as const }, select: { uri: true }, take: 1 },
 	participant: { select: { name: true } },
 	reactions: {
@@ -82,24 +83,34 @@ export async function getRandomMessage(
 }
 
 /**
- * Gets a message slice of the specified length subject to the timestamp filter. Results are always
- * returned in ascending timestamp and id order. May throw a sentinel value for retrying generation.
+ * Gets a message slice of the specified length that starts with or ends with the anchor message.
+ * Results are always returned in ascending timestamp and id order. May throw a sentinel value for
+ * retrying generation.
  */
 export async function getMessageSlice(
-	timestamp: { gte: Date } | { lte: Date },
+	anchor: { start: DatabaseMessage } | { end: DatabaseMessage },
 	length: number
 ): Promise<Array<DatabaseMessage>> {
-	const direction = 'gte' in timestamp ? 'asc' : 'desc';
+	const direction = 'start' in anchor ? 'asc' : 'desc';
+	const message = 'start' in anchor ? anchor.start : anchor.end;
 	const messages = await prisma.message.findMany({
 		orderBy: [{ timestamp: direction }, { id: direction }],
 		select: MESSAGE_SELECT,
 		take: length,
-		where: { timestamp }
+		where: {
+			OR: [
+				{
+					id: 'start' in anchor ? { gte: message.id } : { lte: message.id },
+					timestamp: message.timestamp
+				},
+				{ timestamp: 'start' in anchor ? { gt: message.timestamp } : { lt: message.timestamp } }
+			]
+		}
 	});
 	if (messages.length < length) {
 		throw RETRY_GENERATION;
 	}
-	if ('lte' in timestamp) {
+	if ('end' in anchor) {
 		messages.reverse();
 	}
 	return messages;

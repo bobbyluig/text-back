@@ -77,13 +77,16 @@ export class DurationVariantGenerator implements VariantGenerator {
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);
-		const messages = await getMessageSlice({ gte: anchor.timestamp }, 2 * this._config.maxMessages);
-
+		const messages = await getMessageSlice({ start: anchor }, 2 * this._config.maxMessages);
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
+
 		let found = false;
-		let startIndex = 1;
+		let startIndex = 0;
 		for (; startIndex < messages.length - windowSize; startIndex++) {
-			if (messages[startIndex].participant !== messages[startIndex - 1].participant) {
+			if (
+				messages[startIndex + windowSize - 1].participant.name !==
+				messages[startIndex + windowSize - 2].participant.name
+			) {
 				found = true;
 				break;
 			}
