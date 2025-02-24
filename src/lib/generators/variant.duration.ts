@@ -127,8 +127,8 @@ export class DurationVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Adds a choice if it is not already in the choices array. Takes care of bounding the scale
-	 * factor appropriately.
+	 * Adds a random choice if it is not already in the choices array. Takes care of bounding the
+	 * scale factor appropriately.
 	 */
 	private _maybeAddChoice(
 		rng: Random,
