@@ -112,18 +112,32 @@ export class DurationVariantGenerator implements VariantGenerator {
 		);
 		const scaleUpMinFactor = Math.min(this._config.minScaleFactor, scaleUpMaxFactor);
 
+		const idealNumLower = rng.range(0, this._config.choices);
+		const idealNumHigher = this._config.choices - idealNumLower - 1;
+
 		const answer = this._makeDurationString(durationMs);
 		const choices = [answer];
-		while (choices.length < this._config.choices) {
-			const choiceMs =
-				rng.uniform(0, 1) <= 0.5
-					? durationMs / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
-					: durationMs * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
+
+		const maybeAddChoice = (lower: boolean) => {
+			const choiceMs = lower
+				? durationMs / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
+				: durationMs * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
 			const choice = this._makeDurationString(choiceMs);
 			if (!choices.includes(choice)) {
 				choices.push(choice);
 			}
+		};
+
+		for (let i = 0; i < idealNumLower; i++) {
+			maybeAddChoice(true);
 		}
+		for (let i = 0; i < idealNumHigher; i++) {
+			maybeAddChoice(false);
+		}
+		while (choices.length < this._config.choices) {
+			maybeAddChoice(rng.uniform(0, 1) <= 0.5);
+		}
+
 		rng.shuffle(choices);
 
 		return {
