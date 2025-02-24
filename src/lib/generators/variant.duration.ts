@@ -73,7 +73,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 			maxScaleFactor: 20,
 			minDurationMs: 1000,
 			minMessages: 3,
-			minScaleFactor: 2
+			minScaleFactor: 1
 		};
 	}
 
