@@ -19,6 +19,11 @@ export type DurationVariantConfig = {
 	choices: number;
 
 	/**
+	 * The maximum duration allowed as an answer or choice.
+	 */
+	maxDurationMs: number;
+
+	/**
 	 * The maximum number of messages in the question.
 	 */
 	maxMessages: number;
@@ -28,6 +33,11 @@ export type DurationVariantConfig = {
 	 * scaling up and scaling down.
 	 */
 	maxScaleFactor: number;
+
+	/**
+	 * The minimum duration allowed as an answer or choice.
+	 */
+	minDurationMs: number;
 
 	/**
 	 * The minimum number of messages in the question. This must be at least 2 since we need a message
@@ -58,8 +68,10 @@ export class DurationVariantGenerator implements VariantGenerator {
 	constructor(config?: DurationVariantConfig) {
 		this._config = config ?? {
 			choices: 3,
+			maxDurationMs: 7 * 24 * 3600 * 1000,
 			maxMessages: 10,
-			maxScaleFactor: 20,
+			maxScaleFactor: 50,
+			minDurationMs: 1000,
 			minMessages: 3,
 			minScaleFactor: 2
 		};
@@ -86,16 +98,19 @@ export class DurationVariantGenerator implements VariantGenerator {
 		const window = messages.slice(startIndex, startIndex + windowSize);
 		const durationMs = Math.max(
 			window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime(),
-			1000
+			this._config.minDurationMs
 		);
 		const answer = this._makeDurationString(durationMs);
 
 		const choices = [answer];
 		while (choices.length < this._config.choices) {
 			const scale = rng.uniform(this._config.minScaleFactor, this._config.maxScaleFactor);
-			const choiceMs = Math.max(
-				rng.uniform(0, 1) <= 0.5 ? durationMs / scale : durationMs * scale,
-				1000
+			const choiceMs = Math.min(
+				Math.max(
+					rng.uniform(0, 1) <= 0.5 ? durationMs / scale : durationMs * scale,
+					this._config.minDurationMs
+				),
+				this._config.maxDurationMs
 			);
 			const choice = this._makeDurationString(choiceMs);
 			if (!choices.includes(choice)) {
