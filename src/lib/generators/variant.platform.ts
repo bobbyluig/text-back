@@ -70,6 +70,8 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 */
 	private _mapPlatform(platform: MessagePlatform): string {
 		switch (platform) {
+			case MessagePlatform.INSTAGRAM:
+				return 'Instagram';
 			case MessagePlatform.MESSENGER:
 				return 'Messenger';
 			default:

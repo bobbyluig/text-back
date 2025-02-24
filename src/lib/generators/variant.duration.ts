@@ -86,13 +86,15 @@ export class DurationVariantGenerator implements VariantGenerator {
 		const messages = await getMessageSlice({ gte: anchor.timestamp }, 2 * this._config.maxMessages);
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 
+		let found = false;
 		let startIndex = 1;
 		for (; startIndex < messages.length - windowSize; startIndex++) {
 			if (messages[startIndex].participant !== messages[startIndex - 1].participant) {
+				found = true;
 				break;
 			}
 		}
-		if (startIndex === messages.length - windowSize) {
+		if (!found) {
 			throw RETRY_GENERATION;
 		}
 

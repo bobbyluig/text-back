@@ -50,11 +50,12 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 	for (const message of data.messages) {
 		const text = decodeString(message.content ?? '');
 
-		if (/^Reacted .+ to your message $/.test(text)) {
-			continue;
-		}
-
-		if (text === 'Liked a message') {
+		if (
+			/^Reacted .+ to your message $/.test(text) ||
+			/^You set the nickname for .+ to .+$/.test(text) ||
+			/^.+ set your nickname to .+$/.test(text) ||
+			/^Liked a message$/.test(text)
+		) {
 			continue;
 		}
 
@@ -75,6 +76,10 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 
 		if (message.share?.link !== undefined) {
 			medias.push({ uri: message.share.link });
+		}
+
+		if (medias.length === 0 && /^.+ sent an attachment.$/.test(text)) {
+			continue;
 		}
 
 		const createPromise = prisma.message.create({
@@ -103,7 +108,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 				text: medias.length === 0 ? text : '',
 				timestamp: new Date(message.timestamp_ms),
 				type: medias.length > 0 ? 'MEDIA' : 'TEXT',
-				words: text.trim().split(/\s+/).length
+				words: medias.length === 0 ? text.trim().split(/\s+/).length : 0
 			}
 		});
 
