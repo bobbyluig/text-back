@@ -49,7 +49,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const platform = rng.choice(getServerState().metadata.message.distinctPlatforms);
-		const anchor = await getRandomMessage(rng, { platform, words: { gt: 0 } });
+		const anchor = await getRandomMessage(rng, { platform, words: { gt: 1 } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ lte: anchor.timestamp }, windowSize);
 
