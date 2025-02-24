@@ -1,5 +1,6 @@
 import { RETRY_GENERATION, type VariantGenerator } from '$lib/generators/variant';
 import { DurationVariantGenerator } from '$lib/generators/variant.duration';
+import { WhoVariantGenerator } from '$lib/generators/variant.who';
 import { Random } from '$lib/random';
 import type { Question, QuestionVariant } from '$lib/types';
 
@@ -7,7 +8,8 @@ import type { Question, QuestionVariant } from '$lib/types';
  * All question generators.
  */
 const GENERATORS = new Map<QuestionVariant, VariantGenerator>([
-	['duration', new DurationVariantGenerator()]
+	['duration', new DurationVariantGenerator()],
+	['who', new WhoVariantGenerator()]
 ]);
 
 /**

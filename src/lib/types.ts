@@ -35,7 +35,7 @@ export type QuestionVariant =
 	| 'duration'
 	// The player guesses the whether the conversation is fake or real.
 	| 'fake'
-	// The player guesses the
+	// The player guesses the platform that the last message in the conversation was sent from.
 	| 'platform'
 	// The player guesses the reaction to the last message in the conversation.
 	| 'react'

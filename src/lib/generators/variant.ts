@@ -114,13 +114,14 @@ export async function getMessageSlice(
 	timestamp: { gte: Date } | { lte: Date },
 	length: number
 ): Promise<Array<DatabaseMessage>> {
+	const direction = 'gte' in timestamp ? 'asc' : 'desc';
 	const messages = await prisma.message.findMany({
 		orderBy: [
 			{
-				timestamp: 'asc'
+				timestamp: direction
 			},
 			{
-				id: 'asc'
+				id: direction
 			}
 		],
 		select: MESSAGE_SELECT,
@@ -131,6 +132,9 @@ export async function getMessageSlice(
 	});
 	if (messages.length < length) {
 		throw RETRY_GENERATION;
+	}
+	if ('lte' in timestamp) {
+		messages.reverse();
 	}
 	return messages;
 }

@@ -70,7 +70,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 			choices: 3,
 			maxDurationMs: 7 * 24 * 3600 * 1000,
 			maxMessages: 10,
-			maxScaleFactor: 50,
+			maxScaleFactor: 20,
 			minDurationMs: 1000,
 			minMessages: 3,
 			minScaleFactor: 2
@@ -100,18 +100,25 @@ export class DurationVariantGenerator implements VariantGenerator {
 			window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime(),
 			this._config.minDurationMs
 		);
-		const answer = this._makeDurationString(durationMs);
 
+		const scaleDownMaxFactor = Math.min(
+			this._config.maxScaleFactor,
+			durationMs / this._config.minDurationMs
+		);
+		const scaleDownMinFactor = Math.min(this._config.minScaleFactor, scaleDownMaxFactor);
+		const scaleUpMaxFactor = Math.min(
+			this._config.maxScaleFactor,
+			this._config.maxDurationMs / durationMs
+		);
+		const scaleUpMinFactor = Math.min(this._config.minScaleFactor, scaleUpMaxFactor);
+
+		const answer = this._makeDurationString(durationMs);
 		const choices = [answer];
 		while (choices.length < this._config.choices) {
-			const scale = rng.uniform(this._config.minScaleFactor, this._config.maxScaleFactor);
-			const choiceMs = Math.min(
-				Math.max(
-					rng.uniform(0, 1) <= 0.5 ? durationMs / scale : durationMs * scale,
-					this._config.minDurationMs
-				),
-				this._config.maxDurationMs
-			);
+			const choiceMs =
+				rng.uniform(0, 1) <= 0.5
+					? durationMs / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
+					: durationMs * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
 			const choice = this._makeDurationString(choiceMs);
 			if (!choices.includes(choice)) {
 				choices.push(choice);
