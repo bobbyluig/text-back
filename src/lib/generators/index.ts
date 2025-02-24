@@ -1,28 +1,32 @@
-import { RETRY_GENERATION } from '$lib/generators/variant';
-import { generateQuestion as variantDuration } from '$lib/generators/variant.duration';
+import { RETRY_GENERATION, type VariantGenerator } from '$lib/generators/variant';
+import { DurationVariantGenerator } from '$lib/generators/variant.duration';
 import { Random } from '$lib/random';
 import type { Question, QuestionVariant } from '$lib/types';
 
 /**
  * All question generators.
  */
-const QUESTION_GENERATORS = new Map<QuestionVariant, (rng: Random) => Promise<Question>>([
-	['duration', variantDuration]
+const GENERATORS = new Map<QuestionVariant, VariantGenerator>([
+	['duration', new DurationVariantGenerator()]
 ]);
 
 /**
  * All question variants.
  */
-const VARIANTS = Array.from(QUESTION_GENERATORS.keys()).sort();
+const VARIANTS = Array.from(GENERATORS.keys()).sort();
 
 /**
  * Generates a question given the random state, retrying until a valid question is generated.
  */
 export async function generateQuestion(rng: Random): Promise<Question> {
-	const generator = QUESTION_GENERATORS.get(rng.choice(VARIANTS))!;
+	const generator = GENERATORS.get(rng.choice(VARIANTS));
+	if (generator === undefined) {
+		throw new Error('Generator is undefined');
+	}
+
 	while (true) {
 		try {
-			return await generator(rng);
+			return await generator.generateQuestion(rng);
 		} catch (error) {
 			if (error === RETRY_GENERATION) {
 				continue;

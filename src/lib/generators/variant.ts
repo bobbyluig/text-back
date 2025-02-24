@@ -1,13 +1,30 @@
 import { prisma } from '$lib/prisma';
 import { Random } from '$lib/random';
 import { getServerState } from '$lib/server';
-import type { QuestionMessage } from '$lib/types';
+import type { Question, QuestionMessage } from '$lib/types';
 import type { Prisma } from '@prisma/client';
 
 /**
- * Selects the necessary fields for display a question message.
+ * A unique sentinel value to indicate that question generation should be retried. This can happen
+ * because the random state did not result in a valid question.
  */
-export const MESSAGE_SELECT = {
+export const RETRY_GENERATION = Symbol();
+
+/**
+ * The interface that all variant generators conform to.
+ */
+export interface VariantGenerator {
+	/**
+	 * Generates a question for the variant. May throw a sentinel value for retrying generation.
+	 */
+	generateQuestion(rng: Random): Promise<Question>;
+}
+
+/**
+ * Selects the necessary fields for display a question message. For any messages with multiple
+ * medias or reactions, only the first will be consistently returned for simplicity.
+ */
+const MESSAGE_SELECT = {
 	medias: {
 		orderBy: {
 			id: 'asc' as const
@@ -40,33 +57,22 @@ export const MESSAGE_SELECT = {
 	text: true,
 	timestamp: true
 };
-
 /**
- * A unique sentinel value to indicate that question generation should be retried. This can happen
- * because the random state did not result in a valid question.
+ * The database message containing a subset of all fields.
  */
-export const RETRY_GENERATION = Symbol();
-
-/**
- * Returns a random message id within the range of all messages.
- */
-function getRandomMessageId(rng: Random): number {
-	return rng.range(
-		getServerState().metadata.message.startId,
-		getServerState().metadata.message.endId + 1
-	);
-}
+type DatabaseMessage = Prisma.MessageGetPayload<{
+	select: typeof MESSAGE_SELECT;
+}>;
 
 /**
  * Converts a database message to a question message.
  */
-export function convertMessage(
-	message: Prisma.MessageGetPayload<{
-		select: typeof MESSAGE_SELECT;
-	}>
-): QuestionMessage {
+export function convertMessage(message: DatabaseMessage): QuestionMessage {
+	if (message.text === '' && message.medias.length === 0) {
+		throw new Error('Empty message');
+	}
 	return {
-		content: message.medias.length > 0 ? message.medias[0].uri : message.text,
+		content: message.text !== '' ? message.text : message.medias[0].uri,
 		date: message.timestamp,
 		isMedia: message.medias.length > 0,
 		participant: message.participant.name,
@@ -80,18 +86,17 @@ export function convertMessage(
  */
 export async function getRandomMessage(
 	rng: Random,
-	filter: Omit<Prisma.MessageWhereInput, 'id'>
-): Promise<
-	Prisma.MessageGetPayload<{
-		select: typeof MESSAGE_SELECT;
-	}>
-> {
+	filter?: Omit<Prisma.MessageWhereInput, 'id'>
+): Promise<DatabaseMessage> {
 	const randomMessage = await prisma.message.findFirst({
 		select: MESSAGE_SELECT,
 		where: {
 			...filter,
 			id: {
-				gte: getRandomMessageId(rng)
+				gte: rng.range(
+					getServerState().metadata.message.startId,
+					getServerState().metadata.message.endId + 1
+				)
 			}
 		}
 	});
@@ -102,37 +107,26 @@ export async function getRandomMessage(
 }
 
 /**
- * Gets a random message slice of the specified length. No additional filtering is performed. May
- * throw a sentinel value for retrying generation.
+ * Gets a message slice of the specified length subject to the timestamp filter. Results are always
+ * returned in ascending timestamp and id order. May throw a sentinel value for retrying generation.
  */
-export async function getRandomMessageSlice(
-	rng: Random,
+export async function getMessageSlice(
+	timestamp: { gte: Date } | { lte: Date },
 	length: number
-): Promise<
-	Array<
-		Prisma.MessageGetPayload<{
-			select: typeof MESSAGE_SELECT;
-		}>
-	>
-> {
-	const randomMessage = await prisma.message.findUniqueOrThrow({
-		select: {
-			timestamp: true
-		},
-		where: {
-			id: getRandomMessageId(rng)
-		}
-	});
+): Promise<Array<DatabaseMessage>> {
 	const messages = await prisma.message.findMany({
-		orderBy: {
-			timestamp: 'asc'
-		},
+		orderBy: [
+			{
+				timestamp: 'asc'
+			},
+			{
+				id: 'asc'
+			}
+		],
 		select: MESSAGE_SELECT,
 		take: length,
 		where: {
-			timestamp: {
-				gte: randomMessage.timestamp
-			}
+			timestamp
 		}
 	});
 	if (messages.length < length) {

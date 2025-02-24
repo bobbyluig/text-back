@@ -17,9 +17,12 @@ export class Random {
 	}
 
 	/**
-	 * Returns a random element from the given array. Assumes that the array is non-empty.
+	 * Returns a random element from the given array. Throw an error if the array is empty.
 	 */
 	choice<T>(array: Array<T>): T {
+		if (array.length === 0) {
+			throw new RangeError('Array must be non-empty');
+		}
 		return array[Math.floor(this.rng() * array.length)];
 	}
 
@@ -47,5 +50,12 @@ export class Random {
 			[array[i], array[j]] = [array[j], array[i]];
 		}
 		return array;
+	}
+
+	/**
+	 * Returns a random float in the range [start, end);
+	 */
+	uniform(start: number, end: number): number {
+		return this.rng() * (end - start) + start;
 	}
 }
