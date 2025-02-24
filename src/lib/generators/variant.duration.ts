@@ -14,11 +14,6 @@ import humanizeDuration from 'humanize-duration';
  */
 export type DurationVariantConfig = {
 	/**
-	 * The number of choices to present to the user.
-	 */
-	choices: number;
-
-	/**
 	 * The maximum duration allowed as an answer or choice.
 	 */
 	maxDurationMs: number;
@@ -68,7 +63,6 @@ export class DurationVariantGenerator implements VariantGenerator {
 	 */
 	constructor(config?: DurationVariantConfig) {
 		this._config = config ?? {
-			choices: 3,
 			maxDurationMs: 7 * 24 * 3600 * 1000,
 			maxMessages: 10,
 			maxScaleFactor: 100,
@@ -84,8 +78,8 @@ export class DurationVariantGenerator implements VariantGenerator {
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);
 		const messages = await getMessageSlice({ gte: anchor.timestamp }, 2 * this._config.maxMessages);
-		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 
+		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		let found = false;
 		let startIndex = 1;
 		for (; startIndex < messages.length - windowSize; startIndex++) {
@@ -97,66 +91,44 @@ export class DurationVariantGenerator implements VariantGenerator {
 		if (!found) {
 			throw RETRY_GENERATION;
 		}
-
 		const window = messages.slice(startIndex, startIndex + windowSize);
-		const durationMs = Math.max(
+
+		const answer = Math.max(
 			window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime(),
 			this._config.minDurationMs
 		);
-
-		const answer = this._makeDurationString(durationMs);
-		const choices = [answer];
-
-		const idealNumLower = rng.range(0, this._config.choices);
-		for (let i = 0; i < idealNumLower; i++) {
-			this._maybeAddChoice(rng, choices, durationMs, 'lower');
-		}
-
-		const idealNumHigher = this._config.choices - idealNumLower - 1;
-		for (let i = 0; i < idealNumHigher; i++) {
-			this._maybeAddChoice(rng, choices, durationMs, 'higher');
-		}
-
-		while (choices.length < this._config.choices) {
-			this._maybeAddChoice(rng, choices, durationMs, rng.uniform(0, 1) <= 0.5 ? 'lower' : 'higher');
-		}
+		const alternative = this._getAlternative(rng, answer);
 
 		return {
-			answer,
-			choices: rng.shuffle(choices),
+			answer: this._makeDurationString(answer),
+			choices: rng.shuffle([answer, alternative]).map(this._makeDurationString),
 			messages: window.map(convertMessage),
 			variant: 'duration'
 		};
 	}
 
 	/**
-	 * Adds a random choice if it is not already in the choices array. Takes care of bounding the
-	 * scale factor appropriately.
+	 * Generates an alternative given the answer.
 	 */
-	private _maybeAddChoice(
-		rng: Random,
-		choices: Array<string>,
-		durationMs: number,
-		direction: 'lower' | 'higher'
-	) {
+	private _getAlternative(rng: Random, answer: number): number {
 		const scaleDownMaxFactor = Math.min(
 			this._config.maxScaleFactor,
-			durationMs / this._config.minDurationMs
+			answer / this._config.minDurationMs
 		);
 		const scaleDownMinFactor = Math.min(this._config.minScaleFactor, scaleDownMaxFactor);
 		const scaleUpMaxFactor = Math.min(
 			this._config.maxScaleFactor,
-			this._config.maxDurationMs / durationMs
+			this._config.maxDurationMs / answer
 		);
 		const scaleUpMinFactor = Math.min(this._config.minScaleFactor, scaleUpMaxFactor);
 
-		const choiceMs =
-			direction === 'lower'
-				? durationMs / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
-				: durationMs * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
-		const choice = this._makeDurationString(choiceMs);
-		if (!choices.includes(choice)) {
-			choices.push(choice);
+		while (true) {
+			const alternative = rng.boolean()
+				? answer / rng.uniform(scaleDownMinFactor, scaleDownMaxFactor)
+				: answer * rng.uniform(scaleUpMinFactor, scaleUpMaxFactor);
+			if (this._makeDurationString(alternative) !== this._makeDurationString(answer)) {
+				return alternative;
+			}
 		}
 	}
 

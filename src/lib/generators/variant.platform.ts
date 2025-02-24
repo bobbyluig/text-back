@@ -50,18 +50,27 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	async generate(rng: Random): Promise<Question> {
 		const platform = rng.choice(getServerState().metadata.message.distinctPlatforms);
 		const anchor = await getRandomMessage(rng, { platform, words: { gt: 1 } });
+
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ lte: anchor.timestamp }, windowSize);
 
 		const answer = window[window.length - 1].platform;
-		const choices = [...getServerState().metadata.message.distinctPlatforms];
+		const alternative = this._getAlternative(rng, answer);
 
 		return {
 			answer: this._mapPlatform(answer),
-			choices: rng.shuffle(choices).map(this._mapPlatform),
+			choices: rng.shuffle([answer, alternative]).map(this._mapPlatform),
 			messages: window.map(convertMessage),
 			variant: 'platform'
 		};
+	}
+
+	/**
+	 * Returns an alternative given the answer.
+	 */
+	private _getAlternative(rng: Random, answer: MessagePlatform): MessagePlatform {
+		const allPlatforms = getServerState().metadata.message.distinctPlatforms;
+		return rng.choice(allPlatforms.filter((platform) => platform !== answer));
 	}
 
 	/**

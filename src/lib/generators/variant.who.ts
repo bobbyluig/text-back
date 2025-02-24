@@ -54,21 +54,29 @@ export class WhoVariantGenerator implements VariantGenerator {
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng, { words: { gte: this._config.minWords } });
+
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ lte: anchor.timestamp }, windowSize);
-
 		if (window[window.length - 1].text !== anchor.text) {
 			throw RETRY_GENERATION;
 		}
 
 		const answer = window[window.length - 1].participant.name;
-		const choices = [...getServerState().metadata.participant.distinctNames];
+		const alternative = this._getAlternative(rng, answer);
 
 		return {
 			answer,
-			choices: rng.shuffle(choices),
+			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
 			variant: 'who'
 		};
+	}
+
+	/**
+	 * Returns an alternative given the answer.
+	 */
+	private _getAlternative(rng: Random, answer: string): string {
+		const allNames = getServerState().metadata.participant.distinctNames;
+		return rng.choice(allNames.filter((name) => name !== answer));
 	}
 }

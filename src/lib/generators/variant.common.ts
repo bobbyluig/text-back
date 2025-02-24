@@ -69,9 +69,11 @@ export async function getRandomMessage(
 		getServerState().metadata.message.startId,
 		getServerState().metadata.message.endId + 1
 	);
+	const direction = rng.boolean() ? 'asc' : 'desc';
 	const randomMessage = await prisma.message.findFirst({
+		orderBy: { id: direction },
 		select: MESSAGE_SELECT,
-		where: { ...filter, id: rng.uniform(0, 1) <= 0.5 ? { gte: id } : { lte: id } }
+		where: { ...filter, id: direction === 'asc' ? { gte: id } : { lte: id } }
 	});
 	if (randomMessage === null) {
 		throw RETRY_GENERATION;

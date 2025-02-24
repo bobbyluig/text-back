@@ -17,6 +17,13 @@ export class Random {
 	}
 
 	/**
+	 * Returns a random boolean value.
+	 */
+	boolean(): boolean {
+		return this.uniform(0, 1) <= 0.5
+	}
+
+	/**
 	 * Returns a random element from the given array. Throw an error if the array is empty.
 	 */
 	choice<T>(array: Array<T>): T {
