@@ -17,7 +17,7 @@ export interface VariantGenerator {
 	/**
 	 * Generates a question for the variant. May throw a sentinel value for retrying generation.
 	 */
-	generateQuestion(rng: Random): Promise<Question>;
+	generate(rng: Random): Promise<Question>;
 }
 
 /**

@@ -26,7 +26,7 @@ export async function generateQuestion(rng: Random): Promise<Question> {
 
 	while (true) {
 		try {
-			return await generator.generateQuestion(rng);
+			return await generator.generate(rng);
 		} catch (error) {
 			if (error === RETRY_GENERATION) {
 				continue;

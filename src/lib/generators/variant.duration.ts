@@ -1,7 +1,7 @@
 import {
 	convertMessage,
-	getRandomMessage,
 	getMessageSlice,
+	getRandomMessage,
 	RETRY_GENERATION,
 	type VariantGenerator
 } from '$lib/generators/variant';
@@ -68,7 +68,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 	/**
 	 * Generates a duration variant question.
 	 */
-	async generateQuestion(rng: Random): Promise<Question> {
+	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);
 		const messages = await getMessageSlice({ gte: anchor.timestamp }, 2 * this._config.maxMessages);
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
