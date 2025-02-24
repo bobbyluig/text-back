@@ -25,32 +25,11 @@ export interface VariantGenerator {
  * medias or reactions, only the first will be consistently returned for simplicity.
  */
 const MESSAGE_SELECT = {
-	medias: {
-		orderBy: {
-			id: 'asc' as const
-		},
-		select: {
-			uri: true
-		},
-		take: 1
-	},
-	participant: {
-		select: {
-			name: true
-		}
-	},
+	medias: { orderBy: { id: 'asc' as const }, select: { uri: true }, take: 1 },
+	participant: { select: { name: true } },
 	reactions: {
-		orderBy: {
-			id: 'asc' as const
-		},
-		select: {
-			reaction: true,
-			participant: {
-				select: {
-					name: true
-				}
-			}
-		},
+		orderBy: { id: 'asc' as const },
+		select: { reaction: true, participant: { select: { name: true } } },
 		take: 1
 	},
 	platform: true,
@@ -60,9 +39,7 @@ const MESSAGE_SELECT = {
 /**
  * The database message containing a subset of all fields.
  */
-type DatabaseMessage = Prisma.MessageGetPayload<{
-	select: typeof MESSAGE_SELECT;
-}>;
+type DatabaseMessage = Prisma.MessageGetPayload<{ select: typeof MESSAGE_SELECT }>;
 
 /**
  * Converts a database message to a question message.
@@ -94,10 +71,7 @@ export async function getRandomMessage(
 	);
 	const randomMessage = await prisma.message.findFirst({
 		select: MESSAGE_SELECT,
-		where: {
-			...filter,
-			id: rng.uniform(0, 1) <= 0.5 ? { gte: id } : { lte: id }
-		}
+		where: { ...filter, id: rng.uniform(0, 1) <= 0.5 ? { gte: id } : { lte: id } }
 	});
 	if (randomMessage === null) {
 		throw RETRY_GENERATION;
@@ -115,19 +89,10 @@ export async function getMessageSlice(
 ): Promise<Array<DatabaseMessage>> {
 	const direction = 'gte' in timestamp ? 'asc' : 'desc';
 	const messages = await prisma.message.findMany({
-		orderBy: [
-			{
-				timestamp: direction
-			},
-			{
-				id: direction
-			}
-		],
+		orderBy: [{ timestamp: direction }, { id: direction }],
 		select: MESSAGE_SELECT,
 		take: length,
-		where: {
-			timestamp
-		}
+		where: { timestamp }
 	});
 	if (messages.length < length) {
 		throw RETRY_GENERATION;

@@ -14,7 +14,7 @@
 		"ollama": "sudo systemctl start ollama",
 		"prepare": "svelte-kit sync || echo ''",
 		"preview": "vite preview",
-		"reset": "rm -f prisma/messages.db && rm -rf static/media/ && prisma migrate dev"
+		"reset": "rm -f prisma/messages.db && rm -rf static/media/ && prisma migrate dev && prisma generate"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",

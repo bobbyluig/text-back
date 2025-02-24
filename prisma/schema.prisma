@@ -13,6 +13,8 @@ model Participant {
   name      String
   messages  Message[]
   reactions Reaction[]
+
+  @@unique([name])
 }
 
 model Media {

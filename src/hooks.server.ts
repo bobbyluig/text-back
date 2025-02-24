@@ -8,20 +8,12 @@ import type { ServerInit } from '@sveltejs/kit';
  */
 async function computeMessageMetadata(): Promise<Metadata['message']> {
 	const aggregate = await prisma.message.aggregate({
-		_max: {
-			id: true,
-			timestamp: true
-		},
-		_min: {
-			id: true,
-			timestamp: true
-		}
+		_max: { id: true, timestamp: true },
+		_min: { id: true, timestamp: true }
 	});
 	const findMany = await prisma.message.findMany({
 		distinct: ['platform'],
-		select: {
-			platform: true
-		}
+		select: { platform: true }
 	});
 	if (
 		aggregate._max.id === null ||
@@ -46,35 +38,22 @@ async function computeMessageMetadata(): Promise<Metadata['message']> {
 async function computeParticipantMetadata(): Promise<Metadata['participant']> {
 	const findMany = await prisma.participant.findMany({
 		distinct: ['name'],
-		select: {
-			name: true
-		}
+		select: { name: true }
 	});
 	if (findMany.length !== 2) {
 		throw new Error('Only two participants are supported');
 	}
-	return {
-		distinctNames: findMany.map((participant) => participant.name).sort()
-	};
+	return { distinctNames: findMany.map((participant) => participant.name).sort() };
 }
 
 /**
  * Computes metadata about all reactions.
  */
 async function computeReactionMetadata(): Promise<Metadata['reaction']> {
-	const aggregate = await prisma.reaction.aggregate({
-		_max: {
-			id: true
-		},
-		_min: {
-			id: true
-		}
-	});
+	const aggregate = await prisma.reaction.aggregate({ _max: { id: true }, _min: { id: true } });
 	const findMany = await prisma.reaction.findMany({
 		distinct: ['reaction'],
-		select: {
-			reaction: true
-		}
+		select: { reaction: true }
 	});
 	if (aggregate._max.id === null || aggregate._min.id === null) {
 		throw new Error('No reactions to generate questions');
@@ -101,7 +80,5 @@ async function computeMetadata(): Promise<Metadata> {
  * Initializes the server. Called once on startup.
  */
 export const init: ServerInit = async () => {
-	setServerState({
-		metadata: await computeMetadata()
-	});
+	setServerState({ metadata: await computeMetadata() });
 };

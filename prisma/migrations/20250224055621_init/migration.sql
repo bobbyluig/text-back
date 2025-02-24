@@ -35,6 +35,9 @@ CREATE TABLE "Reaction" (
 );
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Participant_name_key" ON "Participant"("name");
+
+-- CreateIndex
 CREATE INDEX "Media_messageId_idx" ON "Media"("messageId");
 
 -- CreateIndex

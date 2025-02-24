@@ -8,7 +8,6 @@ import {
 import { Random } from '$lib/random';
 import { getServerState } from '$lib/server';
 import type { Question } from '$lib/types';
-import { resolve } from 'path';
 
 /**
  * The config for the who variant generator.
@@ -47,11 +46,7 @@ export class WhoVariantGenerator implements VariantGenerator {
 	 * Creates a new who variant generator with the given config.
 	 */
 	constructor(config?: WhoVariantConfig) {
-		this._config = config ?? {
-			maxMessages: 10,
-			minMessages: 3,
-			minWords: 3
-		};
+		this._config = config ?? { maxMessages: 10, minMessages: 3, minWords: 3 };
 	}
 
 	/**

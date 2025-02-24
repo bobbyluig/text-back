@@ -28,7 +28,7 @@ export type PlatformVariantConfig = {
 /**
  * Generator for a platform variant question. The player guesses the platform that the last message
  * in the conversation was sent from. The generation approach is to first choose a platform, then
- * select an anchor message with some text from that platform, and finally get a slice of messages 
+ * select an anchor message with some text from that platform, and finally get a slice of messages
  * before it.
  */
 export class PlatformVariantGenerator implements VariantGenerator {
@@ -41,10 +41,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 * Creates a new platform variant generator with the given config.
 	 */
 	constructor(config?: PlatformVariantConfig) {
-		this._config = config ?? {
-			maxMessages: 10,
-			minMessages: 3
-		};
+		this._config = config ?? { maxMessages: 10, minMessages: 3 };
 	}
 
 	/**

@@ -9,13 +9,8 @@ import { prisma } from './importer.common';
 type MessengerConversation = {
 	messages: Array<{
 		isUnsent: boolean;
-		media: Array<{
-			uri: string;
-		}>;
-		reactions: Array<{
-			actor: string;
-			reaction: string;
-		}>;
+		media: Array<{ uri: string }>;
+		reactions: Array<{ actor: string; reaction: string }>;
 		senderName: string;
 		text: string;
 		timestamp: number;
@@ -40,10 +35,10 @@ export async function importMessenger(dataPath: string, outMediaPath: string): P
 
 	const participants = new Map<string, number>();
 	for (const participant of data.participants) {
-		const prismaParticipant = await prisma.participant.create({
-			data: {
-				name: participant
-			}
+		const prismaParticipant = await prisma.participant.upsert({
+			create: { name: participant },
+			update: {},
+			where: { name: participant }
 		});
 		participants.set(participant, prismaParticipant.id);
 	}
@@ -69,9 +64,7 @@ export async function importMessenger(dataPath: string, outMediaPath: string): P
 			data: {
 				medias: {
 					createMany: {
-						data: message.media.map((media) => ({
-							uri: `messenger/${path.basename(media.uri)}`
-						}))
+						data: message.media.map((media) => ({ uri: `messenger/${path.basename(media.uri)}` }))
 					}
 				},
 				participantId,

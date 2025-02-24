@@ -162,9 +162,6 @@ export class DurationVariantGenerator implements VariantGenerator {
 	 * Converts a duration in milliseconds to a consistent human-readable string.
 	 */
 	private _makeDurationString(durationMs: number): string {
-		return humanizeDuration(durationMs, {
-			largest: 1,
-			round: true
-		});
+		return humanizeDuration(durationMs, { largest: 1, round: true });
 	}
 }

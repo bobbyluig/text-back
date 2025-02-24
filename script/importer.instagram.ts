@@ -8,29 +8,16 @@ import { prisma } from './importer.common';
  */
 type InstagramConversation = {
 	messages: Array<{
-		audio_files?: Array<{
-			uri: string;
-		}>;
+		audio_files?: Array<{ uri: string }>;
 		content?: string;
-		photos?: Array<{
-			uri: string;
-		}>;
-		reactions?: Array<{
-			actor: string;
-			reaction: string;
-		}>;
+		photos?: Array<{ uri: string }>;
+		reactions?: Array<{ actor: string; reaction: string }>;
 		sender_name: string;
-		share?: {
-			link?: string;
-		};
+		share?: { link?: string };
 		timestamp_ms: number;
-		videos?: Array<{
-			uri: string;
-		}>;
+		videos?: Array<{ uri: string }>;
 	}>;
-	participants: Array<{
-		name: string;
-	}>;
+	participants: Array<{ name: string }>;
 };
 
 /**
@@ -49,10 +36,10 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 
 	const participants = new Map<string, number>();
 	for (const participant of data.participants) {
-		const prismaParticipant = await prisma.participant.create({
-			data: {
-				name: participant.name
-			}
+		const prismaParticipant = await prisma.participant.upsert({
+			create: { name: participant.name },
+			update: {},
+			where: { name: participant.name }
 		});
 		participants.set(participant.name, prismaParticipant.id);
 	}
