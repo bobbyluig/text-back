@@ -1,7 +1,7 @@
+import { generateQuestion } from '$lib/generators';
 import { Random } from '$lib/random';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { generateQuestion } from '$lib/generators';
 
 /**
  * Generates a question given the seed.
