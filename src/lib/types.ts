@@ -1,3 +1,5 @@
+import { MessagePlatform } from '@prisma/client';
+
 /**
  * Read-only server state that is initialized on start and shared between all sessions.
  */
@@ -11,7 +13,7 @@ export type ServerState = {
  */
 export type Metadata = {
 	message: {
-		distinctPlatforms: Array<string>;
+		distinctPlatforms: Array<MessagePlatform>;
 		endDate: Date;
 		endId: number;
 		startDate: Date;
@@ -31,11 +33,9 @@ export type Metadata = {
  * All question variants supported by the game.
  */
 export type QuestionVariant =
-	// The player guesses the duration between the last two messages in the conversation.
 	| 'duration'
 	// The player guesses the whether the conversation is fake or real.
 	| 'fake'
-	// The player guesses the platform that the last message in the conversation was sent from.
 	| 'platform'
 	// The player guesses the reaction to the last message in the conversation.
 	| 'react'
@@ -43,7 +43,6 @@ export type QuestionVariant =
 	| 'respond'
 	// The player guesses when the last message in the conversation was sent.
 	| 'when'
-	// The player guesses who the sender of the single message in the conversation is.
 	| 'who';
 
 /**

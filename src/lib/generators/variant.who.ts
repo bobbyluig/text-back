@@ -4,7 +4,7 @@ import {
 	getRandomMessage,
 	RETRY_GENERATION,
 	type VariantGenerator
-} from '$lib/generators/variant';
+} from '$lib/generators/variant.common';
 import { Random } from '$lib/random';
 import { getServerState } from '$lib/server';
 import type { Question } from '$lib/types';
@@ -33,7 +33,9 @@ export type WhoVariantConfig = {
 };
 
 /**
- * Generator for a who variant question.
+ * Generator for a who variant question. The player guesses who the sender of the last message in
+ * the conversation is. The generation approach is to find an anchor message with enough text that
+ * it could be plausibly guessed, then get a slice of messages before the anchor.
  */
 export class WhoVariantGenerator implements VariantGenerator {
 	/**

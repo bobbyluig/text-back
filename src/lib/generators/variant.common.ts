@@ -88,16 +88,15 @@ export async function getRandomMessage(
 	rng: Random,
 	filter?: Omit<Prisma.MessageWhereInput, 'id'>
 ): Promise<DatabaseMessage> {
+	const id = rng.range(
+		getServerState().metadata.message.startId,
+		getServerState().metadata.message.endId + 1
+	);
 	const randomMessage = await prisma.message.findFirst({
 		select: MESSAGE_SELECT,
 		where: {
 			...filter,
-			id: {
-				gte: rng.range(
-					getServerState().metadata.message.startId,
-					getServerState().metadata.message.endId + 1
-				)
-			}
+			id: rng.uniform(0, 1) <= 0.5 ? { gte: id } : { lte: id }
 		}
 	});
 	if (randomMessage === null) {

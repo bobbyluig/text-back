@@ -45,6 +45,7 @@ model Message {
 }
 
 enum MessagePlatform {
+  INSTAGRAM
   MESSENGER
 }
 

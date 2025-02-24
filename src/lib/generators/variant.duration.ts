@@ -4,7 +4,7 @@ import {
 	getRandomMessage,
 	RETRY_GENERATION,
 	type VariantGenerator
-} from '$lib/generators/variant';
+} from '$lib/generators/variant.common';
 import { Random } from '$lib/random';
 import type { Question } from '$lib/types';
 import humanizeDuration from 'humanize-duration';
@@ -53,7 +53,8 @@ export type DurationVariantConfig = {
 };
 
 /**
- * Generator for a duration variant question. The approach is to get a random slice of messages and
+ * Generator for a duration variant question. The player guesses the duration between the last two
+ * messages in the conversation. The generation approach is to get a random slice of messages and
  * find a fixed size window where the last two messages change participants.
  */
 export class DurationVariantGenerator implements VariantGenerator {
