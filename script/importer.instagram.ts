@@ -48,7 +48,10 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 	bar.start(data.messages.length, 0);
 
 	for (const message of data.messages) {
-		const text = decodeString(message.content ?? '');
+		const text =
+			message.share?.link !== undefined
+				? decodeString(message.share?.link)
+				: decodeString(message.content ?? '');
 
 		if (
 			/^Reacted .+ to your message $/.test(text) ||
@@ -74,11 +77,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			}))
 		);
 
-		if (message.share?.link !== undefined) {
-			medias.push({ uri: message.share.link });
-		}
-
-		if (medias.length === 0 && /^.+ sent an attachment.$/.test(text)) {
+		if (medias.length === 0 && text.length === 0) {
 			continue;
 		}
 
@@ -86,11 +85,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			data: {
 				medias: {
 					createMany: {
-						data: medias.map((media) => ({
-							uri: media.uri.startsWith('https://')
-								? media.uri
-								: `instagram/${path.basename(media.uri)}`
-						}))
+						data: medias.map((media) => ({ uri: `instagram/${path.basename(media.uri)}` }))
 					}
 				},
 				participantId,
@@ -105,10 +100,10 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 							}))
 					}
 				},
-				text: medias.length === 0 ? text : '',
+				text: medias.length > 0 ? '' : text,
 				timestamp: new Date(message.timestamp_ms),
 				type: medias.length > 0 ? 'MEDIA' : 'TEXT',
-				words: medias.length === 0 ? text.trim().split(/\s+/).length : 0
+				words: medias.length > 0 ? 0 : text.trim().split(/\s+/).length
 			}
 		});
 
