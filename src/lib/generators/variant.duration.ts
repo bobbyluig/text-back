@@ -97,11 +97,11 @@ export class DurationVariantGenerator implements VariantGenerator {
 			window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime(),
 			this._config.minDurationMs
 		);
-		const alternative = this._getAlternative(rng, answer);
+		const choices = [answer, this._getAlternative(rng, answer)];
 
 		return {
 			answer: this._makeDurationString(answer),
-			choices: rng.shuffle([answer, alternative]).map(this._makeDurationString),
+			choices: rng.shuffle(choices).map(this._makeDurationString),
 			messages: window.map(convertMessage),
 			variant: 'duration'
 		};

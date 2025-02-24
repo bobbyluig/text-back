@@ -62,21 +62,13 @@ export class WhoVariantGenerator implements VariantGenerator {
 		}
 
 		const answer = window[window.length - 1].participant.name;
-		const alternative = this._getAlternative(rng, answer);
+		const choices = [...getServerState().metadata.participant.distinctNames];
 
 		return {
 			answer,
-			choices: rng.shuffle([answer, alternative]),
+			choices: rng.shuffle(choices),
 			messages: window.map(convertMessage),
 			variant: 'who'
 		};
-	}
-
-	/**
-	 * Returns an alternative given the answer.
-	 */
-	private _getAlternative(rng: Random, answer: string): string {
-		const allNames = getServerState().metadata.participant.distinctNames;
-		return rng.choice(allNames.filter((name) => name !== answer));
 	}
 }

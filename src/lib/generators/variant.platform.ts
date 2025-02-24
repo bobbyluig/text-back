@@ -55,11 +55,11 @@ export class PlatformVariantGenerator implements VariantGenerator {
 		const window = await getMessageSlice({ lte: anchor.timestamp }, windowSize);
 
 		const answer = window[window.length - 1].platform;
-		const alternative = this._getAlternative(rng, answer);
+		const choices = [answer, this._getAlternative(rng, answer)];
 
 		return {
 			answer: this._mapPlatform(answer),
-			choices: rng.shuffle([answer, alternative]).map(this._mapPlatform),
+			choices: rng.shuffle(choices).map(this._mapPlatform),
 			messages: window.map(convertMessage),
 			variant: 'platform'
 		};
