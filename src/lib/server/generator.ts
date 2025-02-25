@@ -1,9 +1,9 @@
+import type { Question, QuestionVariant } from '$lib/question';
 import { Random } from '$lib/random';
 import { RETRY_GENERATION, type VariantGenerator } from '$lib/server/variant.common';
 import { DurationVariantGenerator } from '$lib/server/variant.duration';
 import { PlatformVariantGenerator } from '$lib/server/variant.platform';
 import { WhoVariantGenerator } from '$lib/server/variant.who';
-import type { Question, QuestionVariant } from '$lib/types';
 
 /**
  * All question generators.
@@ -23,7 +23,8 @@ const VARIANTS = Array.from(GENERATORS.keys()).sort();
  * Generates a question given the random state, retrying until a valid question is generated.
  */
 export async function generateQuestion(rng: Random): Promise<Question> {
-	const generator = GENERATORS.get(rng.choice(VARIANTS));
+	const variant = rng.choice(VARIANTS);
+	const generator = GENERATORS.get(variant);
 	if (generator === undefined) {
 		throw new Error('Generator is undefined');
 	}

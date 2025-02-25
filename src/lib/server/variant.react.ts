@@ -7,7 +7,7 @@ import {
 } from '$lib/server/variant.common';
 import { Random } from '$lib/random';
 import { getMetadata } from '$lib/server/metadata';
-import type { Question } from '$lib/types';
+import type { Question } from '$lib/question';
 import { MessagePlatform } from '@prisma/client';
 
 /**

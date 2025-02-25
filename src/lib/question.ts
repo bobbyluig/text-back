@@ -1,5 +1,6 @@
 /**
- * All question variants supported by the game.
+ * All question variants supported by the game. For more information about individual variants, see
+ * the variant questions generators in `$lib/server`.
  */
 export type QuestionVariant =
 	| 'duration'

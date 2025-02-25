@@ -1,13 +1,12 @@
+import type { Question } from '$lib/question';
+import { Random } from '$lib/random';
+import { getMetadata } from '$lib/server/metadata';
 import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
-	RETRY_GENERATION,
 	type VariantGenerator
 } from '$lib/server/variant.common';
-import { Random } from '$lib/random';
-import { getServerState } from '$lib/server/metadata';
-import type { Question } from '$lib/types';
 
 /**
  * The config for the who variant generator.
@@ -58,7 +57,7 @@ export class WhoVariantGenerator implements VariantGenerator {
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
 		const answer = window[window.length - 1].participant.name;
-		const choices = [...getServerState().metadata.participant.distinctNames];
+		const choices = [...getMetadata().participant.distinctNames];
 
 		return {
 			answer,

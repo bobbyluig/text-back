@@ -1,7 +1,7 @@
-import { prisma } from '$lib/server/prisma';
+import type { Question, QuestionMessage } from '$lib/question';
 import { Random } from '$lib/random';
 import { getMetadata } from '$lib/server/metadata';
-import type { Question, QuestionMessage } from '$lib/types';
+import { prisma } from '$lib/server/prisma';
 import type { Prisma } from '@prisma/client';
 
 /**

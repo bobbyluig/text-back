@@ -1,3 +1,4 @@
+import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
 import { getMetadata } from '$lib/server/metadata';
 import {
@@ -6,7 +7,6 @@ import {
 	getRandomMessage,
 	type VariantGenerator
 } from '$lib/server/variant.common';
-import type { Question } from '$lib/types';
 import { MessagePlatform } from '@prisma/client';
 
 /**

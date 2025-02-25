@@ -1,3 +1,4 @@
+import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
 import {
 	convertMessage,
@@ -6,7 +7,6 @@ import {
 	RETRY_GENERATION,
 	type VariantGenerator
 } from '$lib/server/variant.common';
-import type { Question } from '$lib/types';
 import humanizeDuration from 'humanize-duration';
 
 /**
