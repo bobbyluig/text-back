@@ -26,15 +26,14 @@ export type WhoVariantConfig = {
 
 	/**
 	 * The minimum number of words in the anchor message. Messages that are too short are likely too
-	 * hard to guess.
+	 * easy (e.g., a link) or too hard (e.g., a single reaction) to guess.
 	 */
 	minWords: number;
 };
 
 /**
  * Generator for a who variant question. The player guesses who the sender of the last message in
- * the conversation is. The generation approach is to find an anchor message with enough text that
- * it could be plausibly guessed, then get a slice of messages before the anchor.
+ * the conversation is.
  */
 export class WhoVariantGenerator implements VariantGenerator {
 	/**
@@ -50,7 +49,8 @@ export class WhoVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a who variant question.
+	 * Generates a who variant question. The approach is to find an anchor message with enough text
+	 * that it could be plausibly guessed, then get a slice of messages before the anchor.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng, { words: { gte: this._config.minWords } });

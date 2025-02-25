@@ -24,13 +24,17 @@ export type PlatformVariantConfig = {
 	 * and a response.
 	 */
 	minMessages: number;
+
+	/**
+	 * The minimum number of words in the anchor message. Messages that are too short are likely too
+	 * easy (e.g., a link) or too hard (e.g., a single reaction) to guess.
+	 */
+	minWords: number;
 };
 
 /**
  * Generator for a platform variant question. The player guesses the platform that the last message
- * in the conversation was sent from. The generation approach is to first choose a platform, then
- * select an anchor message with some text from that platform, and finally get a slice of messages
- * before it.
+ * in the conversation was sent from.
  */
 export class PlatformVariantGenerator implements VariantGenerator {
 	/**
@@ -42,15 +46,17 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 * Creates a new platform variant generator with the given config.
 	 */
 	constructor(config?: PlatformVariantConfig) {
-		this._config = config ?? { maxMessages: 10, minMessages: 3 };
+		this._config = config ?? { maxMessages: 10, minMessages: 3, minWords: 2 };
 	}
 
 	/**
-	 * Generates a platform variant question.
+	 * Generates a platform variant question. The approach is to first choose a platform, then select
+	 * an anchor message with some text from that platform (ignoring very short messages like links),
+	 * and finally get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const platform = rng.choice(getServerState().metadata.message.distinctPlatforms);
-		const anchor = await getRandomMessage(rng, { platform, words: { gt: 1 } });
+		const anchor = await getRandomMessage(rng, { platform, words: { gte: this._config.minWords } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
@@ -66,7 +72,8 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Returns an alternative given the answer.
+	 * Returns an alternative given the answer. The alternative is a random platform from the set of
+	 * all imported platforms that is different from the answer.
 	 */
 	private _getAlternative(rng: Random, answer: MessagePlatform): MessagePlatform {
 		const allPlatforms = getServerState().metadata.message.distinctPlatforms;

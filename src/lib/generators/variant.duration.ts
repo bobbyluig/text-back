@@ -49,8 +49,7 @@ export type DurationVariantConfig = {
 
 /**
  * Generator for a duration variant question. The player guesses the duration between the last two
- * messages in the conversation. The generation approach is to get a random slice of messages and
- * find a fixed size window where the last two messages change participants.
+ * messages in the conversation.
  */
 export class DurationVariantGenerator implements VariantGenerator {
 	/**
@@ -73,7 +72,8 @@ export class DurationVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a duration variant question.
+	 * Generates a duration variant question. The approach is to get a random slice of messages and
+	 * find a fixed size window where the last two messages change participants.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);
@@ -111,7 +111,8 @@ export class DurationVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates an alternative given the answer.
+	 * Returns an alternative given the answer. The alternative is some factor from the answer, and is
+	 * guaranteed to have a distinct humanized representation.
 	 */
 	private _getAlternative(rng: Random, answer: number): number {
 		const scaleDownMaxFactor = Math.min(
