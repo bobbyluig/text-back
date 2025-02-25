@@ -1,12 +1,11 @@
+import { Random } from '$lib/random';
+import { getMetadata } from '$lib/server/metadata';
 import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
-	RETRY_GENERATION,
 	type VariantGenerator
-} from '$lib/generators/variant.common';
-import { Random } from '$lib/random';
-import { getServerState } from '$lib/server';
+} from '$lib/server/variant.common';
 import type { Question } from '$lib/types';
 import { MessagePlatform } from '@prisma/client';
 
@@ -55,7 +54,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 * and finally get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
-		const platform = rng.choice(getServerState().metadata.message.distinctPlatforms);
+		const platform = rng.choice(getMetadata().message.distinctPlatforms);
 		const anchor = await getRandomMessage(rng, { platform, words: { gte: this._config.minWords } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
@@ -76,7 +75,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	 * all imported platforms that is different from the answer.
 	 */
 	private _getAlternative(rng: Random, answer: MessagePlatform): MessagePlatform {
-		const allPlatforms = getServerState().metadata.message.distinctPlatforms;
+		const allPlatforms = getMetadata().message.distinctPlatforms;
 		return rng.choice(allPlatforms.filter((platform) => platform !== answer));
 	}
 

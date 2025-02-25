@@ -1,8 +1,8 @@
-import { RETRY_GENERATION, type VariantGenerator } from '$lib/generators/variant.common';
-import { DurationVariantGenerator } from '$lib/generators/variant.duration';
-import { PlatformVariantGenerator } from '$lib/generators/variant.platform';
-import { WhoVariantGenerator } from '$lib/generators/variant.who';
 import { Random } from '$lib/random';
+import { RETRY_GENERATION, type VariantGenerator } from '$lib/server/variant.common';
+import { DurationVariantGenerator } from '$lib/server/variant.duration';
+import { PlatformVariantGenerator } from '$lib/server/variant.platform';
+import { WhoVariantGenerator } from '$lib/server/variant.who';
 import type { Question, QuestionVariant } from '$lib/types';
 
 /**

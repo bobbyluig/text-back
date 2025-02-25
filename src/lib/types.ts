@@ -1,26 +1,3 @@
-import { MessagePlatform } from '@prisma/client';
-
-/**
- * Read-only server state that is initialized on start and shared between all sessions.
- */
-export type ServerState = { metadata: Metadata };
-
-/**
- * Represents metadata about all conversations to simplify question generation. All ranges are
- * assumed to be inclusive.
- */
-export type Metadata = {
-	message: {
-		distinctPlatforms: Array<MessagePlatform>;
-		endDate: Date;
-		endId: number;
-		startDate: Date;
-		startId: number;
-	};
-	participant: { distinctNames: Array<string> };
-	reaction: { distinctReactions: Array<string>; endId: number; startId: number };
-};
-
 /**
  * All question variants supported by the game.
  */

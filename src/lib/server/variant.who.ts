@@ -4,9 +4,9 @@ import {
 	getRandomMessage,
 	RETRY_GENERATION,
 	type VariantGenerator
-} from '$lib/generators/variant.common';
+} from '$lib/server/variant.common';
 import { Random } from '$lib/random';
-import { getServerState } from '$lib/server';
+import { getServerState } from '$lib/server/metadata';
 import type { Question } from '$lib/types';
 
 /**

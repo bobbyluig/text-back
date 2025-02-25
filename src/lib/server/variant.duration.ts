@@ -1,11 +1,11 @@
+import { Random } from '$lib/random';
 import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
 	RETRY_GENERATION,
 	type VariantGenerator
-} from '$lib/generators/variant.common';
-import { Random } from '$lib/random';
+} from '$lib/server/variant.common';
 import type { Question } from '$lib/types';
 import humanizeDuration from 'humanize-duration';
 
@@ -13,6 +13,12 @@ import humanizeDuration from 'humanize-duration';
  * The config for the duration variant generator.
  */
 export type DurationVariantConfig = {
+	/**
+	 * The number of additional messages to query for in the initial window to increase the likelihood
+	 * that a participant transition can be found.
+	 */
+	bufferMessages: number;
+
 	/**
 	 * The maximum duration allowed as an answer or choice.
 	 */
@@ -62,6 +68,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 	 */
 	constructor(config?: DurationVariantConfig) {
 		this._config = config ?? {
+			bufferMessages: 10,
 			maxDurationMs: 7 * 24 * 3600 * 1000,
 			maxMessages: 10,
 			maxScaleFactor: 100,
@@ -72,20 +79,23 @@ export class DurationVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a duration variant question. The approach is to get a random slice of messages and
+	 * Generates a duration variant question. The approach is to get a random slice of messages, and
 	 * find a fixed size window where the last two messages change participants.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);
-		const messages = await getMessageSlice({ start: anchor }, 2 * this._config.maxMessages);
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
+		const expandedWindow = await getMessageSlice(
+			{ start: anchor },
+			windowSize + this._config.bufferMessages
+		);
 
 		let found = false;
 		let startIndex = 0;
-		for (; startIndex < messages.length - windowSize; startIndex++) {
+		for (; startIndex < expandedWindow.length - windowSize; startIndex++) {
 			if (
-				messages[startIndex + windowSize - 1].participant.name !==
-				messages[startIndex + windowSize - 2].participant.name
+				expandedWindow[startIndex + windowSize - 1].participant.name !==
+				expandedWindow[startIndex + windowSize - 2].participant.name
 			) {
 				found = true;
 				break;
@@ -94,7 +104,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 		if (!found) {
 			throw RETRY_GENERATION;
 		}
-		const window = messages.slice(startIndex, startIndex + windowSize);
+		const window = expandedWindow.slice(startIndex, startIndex + windowSize);
 
 		const answer = Math.max(
 			window[window.length - 1].timestamp.getTime() - window[window.length - 2].timestamp.getTime(),

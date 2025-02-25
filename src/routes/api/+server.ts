@@ -1,4 +1,4 @@
-import { generateQuestion } from '$lib/generators';
+import { generateQuestion } from '$lib/server/metadata';
 import { Random } from '$lib/random';
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';

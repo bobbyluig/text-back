@@ -1,6 +1,6 @@
-import { prisma } from '$lib/prisma';
+import { prisma } from '$lib/server/prisma';
 import { Random } from '$lib/random';
-import { getServerState } from '$lib/server';
+import { getMetadata } from '$lib/server/metadata';
 import type { Question, QuestionMessage } from '$lib/types';
 import type { Prisma } from '@prisma/client';
 
@@ -66,10 +66,7 @@ export async function getRandomMessage(
 	rng: Random,
 	filter?: Omit<Prisma.MessageWhereInput, 'id'>
 ): Promise<DatabaseMessage> {
-	const id = rng.range(
-		getServerState().metadata.message.startId,
-		getServerState().metadata.message.endId + 1
-	);
+	const id = rng.range(getMetadata().message.startId, getMetadata().message.endId + 1);
 	const direction = rng.boolean() ? 'asc' : 'desc';
 	const randomMessage = await prisma.message.findFirst({
 		orderBy: { id: direction },
