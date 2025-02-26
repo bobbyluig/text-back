@@ -56,8 +56,8 @@ export class WhenVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a when variant question. The approach is to find a random anchor message and choose
-	 * a random of slice of messages after it. There are no message restrictions for t his variant.
+	 * Generates a when variant question. The approach is to get a random anchor message and get
+	 * a slice of messages after it. There are no message restrictions for this variant.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng);

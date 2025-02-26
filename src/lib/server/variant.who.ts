@@ -48,8 +48,8 @@ export class WhoVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a who variant question. The approach is to find an anchor message with enough text
-	 * that it could be plausibly guessed, then get a slice of messages before the anchor.
+	 * Generates a who variant question. The approach is to get a random anchor message with enough
+	 * text that it could be plausibly guessed, then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng, { words: { gte: this._config.minWords } });

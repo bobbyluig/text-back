@@ -49,9 +49,9 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a platform variant question. The approach is to first choose a platform, then select
-	 * an anchor message with some text from that platform (ignoring very short messages like links),
-	 * and finally get a slice of messages before it.
+	 * Generates a platform variant question. The approach is to first randomly choose a platform,
+	 * then get a random anchor message with some text from that platform (ignoring short messages 
+	 * like links), and finally get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const platform = rng.choice(getMetadata().message.distinctPlatforms);

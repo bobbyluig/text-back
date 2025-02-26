@@ -45,7 +45,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a react variant question. The approach is to find a random anchor message with a
+	 * Generates a react variant question. The approach is to get a random anchor message with a
 	 * reaction, then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
