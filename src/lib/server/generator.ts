@@ -3,6 +3,7 @@ import { Random } from '$lib/random';
 import { RETRY_GENERATION, type VariantGenerator } from '$lib/server/variant.common';
 import { DurationVariantGenerator } from '$lib/server/variant.duration';
 import { PlatformVariantGenerator } from '$lib/server/variant.platform';
+import { ReactVariantGenerator } from '$lib/server/variant.react';
 import { WhoVariantGenerator } from '$lib/server/variant.who';
 
 /**
@@ -11,6 +12,7 @@ import { WhoVariantGenerator } from '$lib/server/variant.who';
 const GENERATORS = new Map<QuestionVariant, VariantGenerator>([
 	['duration', new DurationVariantGenerator()],
 	['platform', new PlatformVariantGenerator()],
+	['react', new ReactVariantGenerator()],
 	['who', new WhoVariantGenerator()]
 ]);
 

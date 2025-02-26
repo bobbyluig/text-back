@@ -1,5 +1,5 @@
 import { Random } from '$lib/random';
-import { generateObject, jsonSchema } from 'ai';
+import { generateText } from 'ai';
 import { ollama } from 'ollama-ai-provider';
 
 /**
@@ -17,22 +17,22 @@ const TEMPERATURE = 0.8;
  */
 const SYSTEM_MESSAGE = [
 	'You are a helpful assistant in a game about texting.',
-	'You are tasked with generating choices.'
+	'You are tasked with generating a single alternative choice given the answer.',
+	'The alternative must be different from the answer.',
+	'Do not output any additional text except for the alternative.'
 ].join(' ');
 
 /**
  * Generates a string list response to the given prompt using Ollama running locally. May throw an
  * error if the response is not in a valid format.
  */
-export async function invokeModel(rng: Random, prompt: string): Promise<Array<string>> {
-	const { object } = await generateObject({
+export async function invokeModel(rng: Random, prompt: string): Promise<string> {
+	const { text } = await generateText({
 		model: ollama(MODEL_NAME),
-		output: 'array',
 		prompt,
-		schema: jsonSchema({ type: 'string' }),
 		seed: rng.range(Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER),
 		temperature: TEMPERATURE,
 		system: SYSTEM_MESSAGE
 	});
-	return object as Array<string>;
+	return text;
 }

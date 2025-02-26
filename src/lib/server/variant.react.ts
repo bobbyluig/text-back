@@ -46,10 +46,22 @@ export class ReactVariantGenerator implements VariantGenerator {
 	/**
 	 * Generates a react variant question. The approach is ...
 	 */
-	async generate(rng: Random): Promise<Question> {}
+	async generate(rng: Random): Promise<Question> {
+		const anchor = await getRandomMessage(rng, { reactions: { some: {} } });
+		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
+		const window = await getMessageSlice({ end: anchor }, windowSize);
+
+		const messages = window.map(convertMessage);
+		const answer = messages[messages.length - 1].reaction;
+		const choices = [answer, this._getAlternative(rng, answer)];
+
+		return { answer, choices: rng.shuffle(choices), messages, variant: 'react' };
+	}
 
 	/**
 	 * Returns an alternative given the answer.
 	 */
-	private _getAlternative(rng: Random, answer: string): string {}
+	private _getAlternative(rng: Random, answer: string): string {
+		return '';
+	}
 }
