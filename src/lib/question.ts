@@ -10,7 +10,6 @@ export type QuestionVariant =
 	| 'react'
 	// The player guesses the response to the last message in the conversation.
 	| 'respond'
-	// The player guesses when the last message in the conversation was sent.
 	| 'when'
 	| 'who';
 

@@ -62,7 +62,6 @@ export class PlatformVariantGenerator implements VariantGenerator {
 		const answer = window[window.length - 1].platform;
 		const alternative = this._getAlternative(rng, answer);
 
-
 		return {
 			answer: this._mapPlatform(answer),
 			choices: rng.shuffle([answer, alternative]).map(this._mapPlatform),

@@ -30,8 +30,8 @@ export type DurationVariantConfig = {
 	maxMessages: number;
 
 	/**
-	 * The maximum scale factor to apply to the answer when generating choices. This applies to both
-	 * scaling up and scaling down.
+	 * The maximum scale factor to apply to the answer when generating the alternative. This applies
+	 * to both scaling up and scaling down.
 	 */
 	maxScaleFactor: number;
 
@@ -47,8 +47,8 @@ export type DurationVariantConfig = {
 	minMessages: number;
 
 	/**
-	 * The minimum factor to apply to the answer when generating choices. This applies to both scaling
-	 * up and scaling down.
+	 * The minimum scale factor to apply to the answer when generating the alternative. This applies
+	 * to both scaling up and scaling down.
 	 */
 	minScaleFactor: number;
 };
