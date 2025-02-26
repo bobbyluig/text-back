@@ -56,12 +56,9 @@ export class WhoVariantGenerator implements VariantGenerator {
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
-		const answer = window[window.length - 1].participant.name;
-		const choices = [...getMetadata().participant.distinctNames];
-
 		return {
-			answer,
-			choices: rng.shuffle(choices),
+			answer: window[window.length - 1].participant.name,
+			choices: rng.shuffle([...getMetadata().participant.distinctNames]),
 			messages: window.map(convertMessage),
 			variant: 'who'
 		};

@@ -21,6 +21,11 @@ export interface VariantGenerator {
 }
 
 /**
+ * The database message containing a subset of all fields.
+ */
+export type DatabaseMessage = Prisma.MessageGetPayload<{ select: typeof MESSAGE_SELECT }>;
+
+/**
  * Selects the necessary fields for display a question message. For any messages with multiple
  * medias or reactions, only the first will be consistently returned for simplicity.
  */
@@ -37,10 +42,6 @@ const MESSAGE_SELECT = {
 	text: true,
 	timestamp: true
 };
-/**
- * The database message containing a subset of all fields.
- */
-type DatabaseMessage = Prisma.MessageGetPayload<{ select: typeof MESSAGE_SELECT }>;
 
 /**
  * Converts a database message to a question message.

@@ -10,10 +10,10 @@ import { WhoVariantGenerator } from '$lib/server/variant.who';
  * All question generators.
  */
 const GENERATORS = new Map<QuestionVariant, VariantGenerator>([
-	['duration', new DurationVariantGenerator()],
-	['platform', new PlatformVariantGenerator()],
-	['react', new ReactVariantGenerator()],
-	['who', new WhoVariantGenerator()]
+	// ['duration', new DurationVariantGenerator()],
+	// ['platform', new PlatformVariantGenerator()],
+	['react', new ReactVariantGenerator()]
+	// ['who', new WhoVariantGenerator()]
 ]);
 
 /**

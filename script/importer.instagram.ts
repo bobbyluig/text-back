@@ -57,7 +57,8 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			/^Reacted .+ to your message $/.test(text) ||
 			/^You set the nickname for .+ to .+$/.test(text) ||
 			/^.+ set your nickname to .+$/.test(text) ||
-			/^Liked a message$/.test(text)
+			/^Liked a message$/.test(text) ||
+			/^.+ sent an attachment.$/.test(text)
 		) {
 			continue;
 		}

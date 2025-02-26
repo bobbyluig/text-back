@@ -1,14 +1,15 @@
+import type { Question } from '$lib/question';
+import { Random } from '$lib/random';
+import { getMetadata } from '$lib/server/metadata';
 import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
 	RETRY_GENERATION,
+	type DatabaseMessage,
 	type VariantGenerator
 } from '$lib/server/variant.common';
-import { Random } from '$lib/random';
-import { getMetadata } from '$lib/server/metadata';
-import type { Question } from '$lib/question';
-import { MessagePlatform } from '@prisma/client';
+import { invokeModel } from './model';
 
 /**
  * The config for the react variant generator.
@@ -44,24 +45,68 @@ export class ReactVariantGenerator implements VariantGenerator {
 	}
 
 	/**
-	 * Generates a react variant question. The approach is ...
+	 * Generates a react variant question. The approach is to find a random anchor message with a
+	 * reaction, then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng, { reactions: { some: {} } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
-		const messages = window.map(convertMessage);
-		const answer = messages[messages.length - 1].reaction;
-		const choices = [answer, this._getAlternative(rng, answer)];
+		const answer = window[window.length - 1].reactions[0].reaction;
+		const alternative = await this._getAlternative(rng, answer, window);
 
-		return { answer, choices: rng.shuffle(choices), messages, variant: 'react' };
+		return {
+			answer,
+			choices: rng.shuffle([answer, alternative]),
+			messages: window.map(convertMessage),
+			variant: 'react'
+		};
 	}
 
 	/**
-	 * Returns an alternative given the answer.
+	 * Returns an alternative given the answer and the sequence of messages. It uses a model to pick
+	 * the most contextually relevant emoji.
 	 */
-	private _getAlternative(rng: Random, answer: string): string {
-		return '';
+	private async _getAlternative(
+		rng: Random,
+		answer: string,
+		window: Array<DatabaseMessage>
+	): Promise<string> {
+		const promptMessages = window
+			.map(
+				(message) =>
+					`${message.participant.name}: ${message.text !== '' ? message.text : '<media/>'}`
+			)
+			.join('\n');
+		const promptReaction = answer;
+		const promptReactions = getMetadata().reaction.distinctReactions.join('\n');
+		const prompt = [
+			'You will be given a sequence of messages in <messages></messages>.',
+			'Each line begins with the participant name, followed by the message.',
+			'The message may contain the tag <media/> to indicate that it is a media message.',
+			'You will be given a reaction to the last message in <reaction></reaction>.',
+			'You will be given a set of commonly used reactions in <reactions></reactions>.',
+			'Provide an alternative reaction to the one in the last message.',
+			'Try to only choose from the given reactions.',
+			'Take into account the context of the messages and the existing reaction.',
+			'',
+			`<messages>\n${promptMessages}\n</messages>`,
+			'',
+			`<reaction>\n${promptReaction}\n</reaction>`,
+			'',
+			`<reactions>\n${promptReactions}\n</reactions>`
+		].join('\n');
+
+		const alternative = await invokeModel(rng, prompt);
+		if (
+			alternative === answer ||
+			[...alternative].length !== 1 ||
+			!/\p{Extended_Pictographic}/u.test(alternative)
+		) {
+			throw RETRY_GENERATION;
+		}
+
+		return alternative;
 	}
 }
