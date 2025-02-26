@@ -74,10 +74,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 		window: Array<DatabaseMessage>
 	): Promise<string> {
 		const promptMessages = window
-			.map(
-				(message) =>
-					`${message.participant.name}: ${message.text !== '' ? message.text : '<media/>'}`
-			)
+			.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
 			.join('\n');
 		const promptReaction = answer;
 		const promptReactions = getMetadata().reaction.distinctReactions.join('\n');
