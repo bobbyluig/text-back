@@ -81,16 +81,18 @@ export class NextVariantGenerator implements VariantGenerator {
 			'Each line begins with the participant name, followed by the message.',
 			'The message may contain the <media/> tag to indicate that it is a media message.',
 			'Provide an alternative to the last message, matching the surrounding style and tone.',
+			'The last message is the one right before </messages>.',
 			'Assume the alternative is from the same participant as the one in the last message.',
 			'The alternative must only consist of text.',
 			'Do not include links or the <media/> tag.',
 			'Do not include the participant name.',
 			'Do not include any new lines.',
 			'Keep the alternative informal, potentially omitting punctuation as necessary.',
-			'Include emojis in the message if they are contextually appropriate.',
 			'',
 			`<messages>\n${promptMessages}\n</messages>`
 		].join('\n');
+
+		console.log(prompt);
 
 		const alternative = await invokeModel(rng, prompt);
 		if (alternative === answer) {

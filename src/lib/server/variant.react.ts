@@ -85,6 +85,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 			'You will be given a reaction to the last message in <reaction></reaction>.',
 			'You will be given a set of commonly used reactions in <reactions></reactions>.',
 			'Provide an alternative reaction to the one in the last message.',
+			'The last message is the one right before </messages>.',
 			'Try to only choose from the given reactions.',
 			'Take into account the context of the messages and the existing reaction.',
 			'',

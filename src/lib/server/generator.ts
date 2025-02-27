@@ -2,9 +2,9 @@ import type { Question, QuestionVariant } from '$lib/question';
 import { Random } from '$lib/random';
 import { RETRY_GENERATION, type VariantGenerator } from '$lib/server/variant.common';
 import { DurationVariantGenerator } from '$lib/server/variant.duration';
+import { NextVariantGenerator } from '$lib/server/variant.next';
 import { PlatformVariantGenerator } from '$lib/server/variant.platform';
 import { ReactVariantGenerator } from '$lib/server/variant.react';
-import { NextVariantGenerator } from '$lib/server/variant.next';
 import { WhenVariantGenerator } from '$lib/server/variant.when';
 import { WhoVariantGenerator } from '$lib/server/variant.who';
 

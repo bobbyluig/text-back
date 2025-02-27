@@ -18,9 +18,8 @@ const TEMPERATURE = 0.8;
 const SYSTEM_MESSAGE = [
 	'You are a helpful assistant in a game about texting.',
 	'Any messages you are given will be from two people who are dating and know each other well.',
-	'You are tasked with generating a single alternative choice given the answer.',
-	'The alternative must be different from the answer.',
-	'Do not output any additional text except for the alternative.'
+	'You are generating a single output given the prompt.',
+	'Do not include any extra text.'
 ].join(' ');
 
 /**
