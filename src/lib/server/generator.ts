@@ -4,6 +4,7 @@ import { RETRY_GENERATION, type VariantGenerator } from '$lib/server/variant.com
 import { DurationVariantGenerator } from '$lib/server/variant.duration';
 import { PlatformVariantGenerator } from '$lib/server/variant.platform';
 import { ReactVariantGenerator } from '$lib/server/variant.react';
+import { NextVariantGenerator } from '$lib/server/variant.next';
 import { WhenVariantGenerator } from '$lib/server/variant.when';
 import { WhoVariantGenerator } from '$lib/server/variant.who';
 
@@ -11,11 +12,12 @@ import { WhoVariantGenerator } from '$lib/server/variant.who';
  * All question generators.
  */
 const GENERATORS = new Map<QuestionVariant, VariantGenerator>([
-	['duration', new DurationVariantGenerator()],
-	['platform', new PlatformVariantGenerator()],
-	['react', new ReactVariantGenerator()],
-	['when', new WhenVariantGenerator()],
-	['who', new WhoVariantGenerator()]
+	// ['duration', new DurationVariantGenerator()],
+	['next', new NextVariantGenerator()]
+	// ['platform', new PlatformVariantGenerator()],
+	// ['react', new ReactVariantGenerator()],
+	// ['when', new WhenVariantGenerator()],
+	// ['who', new WhoVariantGenerator()]
 ]);
 
 /**

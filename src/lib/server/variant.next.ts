@@ -12,61 +12,61 @@ import {
 import { invokeModel } from './model';
 
 /**
- * The config for the react variant generator.
+ * The config for the next variant generator.
  */
-export type ReactVariantConfig = {
+export type NextVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
 	maxMessages: number;
 
 	/**
-	 * The minimum number of messages in the question. This must be at least 2 since we need a message
-	 * and a response.
+	 * The minimum number of messages in the question. This must be at least two since we need a
+	 * message before the one that is to be guessed.
 	 */
 	minMessages: number;
 };
 
 /**
- * Generator for a react variant question. The player guesses the reaction for the last message in
- * the conversation.
+ * Generator for a next variant question. The player guesses the next message in the conversation
+ * given some previous messages.
  */
-export class ReactVariantGenerator implements VariantGenerator {
+export class NextVariantGenerator implements VariantGenerator {
 	/**
-	 * Config for the react variant generator.
+	 * Config for the next variant generator.
 	 */
-	private readonly _config: ReactVariantConfig;
+	private readonly _config: NextVariantConfig;
 
 	/**
-	 * Creates a new react variant generator with the given config.
+	 * Creates a new next variant generator with the given config.
 	 */
-	constructor(config?: ReactVariantConfig) {
+	constructor(config?: NextVariantConfig) {
 		this._config = config ?? { maxMessages: 10, minMessages: 3 };
 	}
 
 	/**
-	 * Generates a react variant question. The approach is to get a random anchor message with a
-	 * reaction, then get a slice of messages before it.
+	 * Generates a next variant question. The approach is to get a random anchor message with some
+	 * text (can be very short). Then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
-		const anchor = await getRandomMessage(rng, { reactions: { some: {} } });
+		const anchor = await getRandomMessage(rng, { words: { gt: 0 } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
-		const answer = window[window.length - 1].reactions[0].reaction;
+		const answer = window[window.length - 1].text;
 		const alternative = await this._getAlternative(rng, answer, window);
 
 		return {
 			answer,
 			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
-			variant: 'react'
+			variant: 'next'
 		};
 	}
 
 	/**
 	 * Returns an alternative given the answer and the sequence of messages. It uses a model to pick
-	 * the most contextually relevant emoji.
+	 * the a contextually appropriate message.
 	 */
 	private async _getAlternative(
 		rng: Random,
@@ -76,31 +76,24 @@ export class ReactVariantGenerator implements VariantGenerator {
 		const promptMessages = window
 			.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
 			.join('\n');
-		const promptReaction = answer;
-		const promptReactions = getMetadata().reaction.distinctReactions.join('\n');
 		const prompt = [
 			'You will be given a sequence of messages in <messages></messages>.',
 			'Each line begins with the participant name, followed by the message.',
 			'The message may contain the <media/> tag to indicate that it is a media message.',
-			'You will be given a reaction to the last message in <reaction></reaction>.',
-			'You will be given a set of commonly used reactions in <reactions></reactions>.',
-			'Provide an alternative reaction to the one in the last message.',
-			'Try to only choose from the given reactions.',
-			'Take into account the context of the messages and the existing reaction.',
+			'Provide an alternative to the last message, matching the surrounding style and tone.',
+			'Assume the alternative is from the same participant as the one in the last message.',
+			'The alternative must only consist of text.',
+			'Do not include links or the <media/> tag.',
+			'Do not include the participant name.',
+			'Do not include any new lines.',
+			'Keep the alternative informal, potentially omitting punctuation as necessary.',
+			'Include emojis in the message if they are contextually appropriate.',
 			'',
-			`<messages>\n${promptMessages}\n</messages>`,
-			'',
-			`<reaction>\n${promptReaction}\n</reaction>`,
-			'',
-			`<reactions>\n${promptReactions}\n</reactions>`
+			`<messages>\n${promptMessages}\n</messages>`
 		].join('\n');
 
 		const alternative = await invokeModel(rng, prompt);
-		if (
-			alternative === answer ||
-			[...alternative].length !== 1 ||
-			!/\p{Extended_Pictographic}/u.test(alternative)
-		) {
+		if (alternative === answer) {
 			throw RETRY_GENERATION;
 		}
 

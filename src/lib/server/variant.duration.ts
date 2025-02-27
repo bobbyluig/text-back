@@ -41,8 +41,8 @@ export type DurationVariantConfig = {
 	minDurationMs: number;
 
 	/**
-	 * The minimum number of messages in the question. This must be at least 2 since we need a message
-	 * and a response.
+	 * The minimum number of messages in the question. This must be at least two since we need a 
+	 * message and a response.
 	 */
 	minMessages: number;
 
