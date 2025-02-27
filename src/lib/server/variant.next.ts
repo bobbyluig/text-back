@@ -81,7 +81,7 @@ export class NextVariantGenerator implements VariantGenerator {
 			'Each line begins with the participant name, followed by the message.',
 			'The message may contain the <media/> tag to indicate that it is a media message.',
 			'Provide an alternative to the last message, matching the surrounding style and tone.',
-			'The last message is the one right before </messages>.',
+			'The last message is on the line before </messages>.',
 			'Assume the alternative is from the same participant as the one in the last message.',
 			'The alternative must only consist of text.',
 			'Do not include links or the <media/> tag.',
