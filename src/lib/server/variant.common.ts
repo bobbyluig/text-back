@@ -55,6 +55,7 @@ export function convertMessage(message: DatabaseMessage): QuestionMessage {
 		date: message.timestamp,
 		isMedia: message.medias.length > 0,
 		participant: message.participant.name,
+		platform: message.platform,
 		reaction: message.reactions.length > 0 ? message.reactions[0].reaction : ''
 	};
 }

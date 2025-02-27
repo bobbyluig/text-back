@@ -12,9 +12,9 @@ import {
 import { invokeModel } from './model';
 
 /**
- * The config for the next variant generator.
+ * The config for the continue variant generator.
  */
-export type NextVariantConfig = {
+export type ContinueVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
@@ -28,25 +28,25 @@ export type NextVariantConfig = {
 };
 
 /**
- * Generator for a next variant question. The player guesses the next message in the conversation
+ * Generator for a continue variant question. The player guesses the next message in the conversation
  * given some previous messages.
  */
-export class NextVariantGenerator implements VariantGenerator {
+export class ContinueVariantGenerator implements VariantGenerator {
 	/**
-	 * Config for the next variant generator.
+	 * Config for the continue variant generator.
 	 */
-	private readonly _config: NextVariantConfig;
+	private readonly _config: ContinueVariantConfig;
 
 	/**
-	 * Creates a new next variant generator with the given config.
+	 * Creates a new continue variant generator with the given config.
 	 */
-	constructor(config?: NextVariantConfig) {
+	constructor(config?: ContinueVariantConfig) {
 		this._config = config ?? { maxMessages: 10, minMessages: 3 };
 	}
 
 	/**
-	 * Generates a next variant question. The approach is to get a random anchor message with some
-	 * text (excluding links). Then get a slice of messages before it.
+	 * Generates a continue variant question. The approach is to get a random anchor message with some
+	 * text (ignoring short messages like links). Then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
 		const anchor = await getRandomMessage(rng, { words: { gt: 1 } });
@@ -60,7 +60,7 @@ export class NextVariantGenerator implements VariantGenerator {
 			answer,
 			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
-			variant: 'next'
+			variant: 'continue'
 		};
 	}
 
@@ -83,7 +83,8 @@ export class NextVariantGenerator implements VariantGenerator {
 			'Do not include links or the <media/> tag.',
 			'Do not include the participant name.',
 			'Do not include any new lines.',
-			'Keep the alternative informal, potentially omitting punctuation as necessary.'
+			'Keep the alternative informal, potentially omitting punctuation as necessary.',
+			'Remember that you are not responding to the last message, only giving an alternative to it.'
 		].join(' ');
 		const prompt = [
 			instructions,

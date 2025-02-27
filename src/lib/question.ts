@@ -1,12 +1,14 @@
+import type { MessagePlatform } from '@prisma/client';
+
 /**
  * All question variants supported by the game. For more information about individual variants, see
  * the variant questions generators in `$lib/server`.
  */
 export type QuestionVariant =
+	| 'continue'
 	| 'duration'
 	// The player guesses the whether the conversation is fake or real.
 	| 'fake'
-	| 'next'
 	| 'platform'
 	| 'react'
 	| 'when'
@@ -21,6 +23,7 @@ export type QuestionMessage = {
 	date: Date;
 	isMedia: boolean;
 	participant: string;
+	platform: MessagePlatform;
 	reaction: string;
 };
 

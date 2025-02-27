@@ -50,7 +50,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 
 	/**
 	 * Generates a platform variant question. The approach is to first randomly choose a platform,
-	 * then get a random anchor message with some text from that platform (ignoring short messages 
+	 * then get a random anchor message with some text from that platform (ignoring short messages
 	 * like links), and finally get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
@@ -63,8 +63,8 @@ export class PlatformVariantGenerator implements VariantGenerator {
 		const alternative = this._getAlternative(rng, answer);
 
 		return {
-			answer: this._mapPlatform(answer),
-			choices: rng.shuffle([answer, alternative]).map(this._mapPlatform),
+			answer,
+			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
 			variant: 'platform'
 		};
@@ -77,20 +77,5 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	private _getAlternative(rng: Random, answer: MessagePlatform): MessagePlatform {
 		const allPlatforms = getMetadata().message.distinctPlatforms;
 		return rng.choice(allPlatforms.filter((platform) => platform !== answer));
-	}
-
-	/**
-	 * Maps an enum platform name to its display representation. The client is generally unaware of
-	 * the concept of platforms during rendering.
-	 */
-	private _mapPlatform(platform: MessagePlatform): string {
-		switch (platform) {
-			case MessagePlatform.INSTAGRAM:
-				return 'Instagram';
-			case MessagePlatform.MESSENGER:
-				return 'Messenger';
-			default:
-				throw new Error(`Unknown platform: ${platform}`);
-		}
 	}
 }
