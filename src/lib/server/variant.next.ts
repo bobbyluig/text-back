@@ -46,10 +46,10 @@ export class NextVariantGenerator implements VariantGenerator {
 
 	/**
 	 * Generates a next variant question. The approach is to get a random anchor message with some
-	 * text (can be very short). Then get a slice of messages before it.
+	 * text (excluding links). Then get a slice of messages before it.
 	 */
 	async generate(rng: Random): Promise<Question> {
-		const anchor = await getRandomMessage(rng, { words: { gt: 0 } });
+		const anchor = await getRandomMessage(rng, { words: { gt: 1 } });
 		const windowSize = rng.range(this._config.minMessages, this._config.maxMessages + 1);
 		const window = await getMessageSlice({ end: anchor }, windowSize);
 
@@ -73,29 +73,36 @@ export class NextVariantGenerator implements VariantGenerator {
 		answer: string,
 		window: Array<DatabaseMessage>
 	): Promise<string> {
-		const promptMessages = window
-			.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
-			.join('\n');
-		const prompt = [
-			'You will be given a sequence of messages in <messages></messages>.',
+		const instructions = [
+			'You will be given a list of messages in <messages></messages>.',
 			'Each line begins with the participant name, followed by the message.',
 			'The message may contain the <media/> tag to indicate that it is a media message.',
 			'Provide an alternative to the last message, matching the surrounding style and tone.',
-			'The last message is on the line before </messages>.',
-			'Assume the alternative is from the same participant as the one in the last message.',
+			'The alternative must be similar to the last message.',
 			'The alternative must only consist of text.',
 			'Do not include links or the <media/> tag.',
 			'Do not include the participant name.',
 			'Do not include any new lines.',
-			'Keep the alternative informal, potentially omitting punctuation as necessary.',
+			'Keep the alternative informal, potentially omitting punctuation as necessary.'
+		].join(' ');
+		const prompt = [
+			instructions,
 			'',
-			`<messages>\n${promptMessages}\n</messages>`
+			'<messages>',
+			window
+				.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
+				.join('\n'),
+			'</messages>'
 		].join('\n');
 
 		console.log(prompt);
 
 		const alternative = await invokeModel(rng, prompt);
-		if (alternative === answer) {
+		if (
+			alternative === answer ||
+			alternative.includes('\n') ||
+			getMetadata().participant.distinctNames.some((name) => alternative.startsWith(`${name}:`))
+		) {
 			throw RETRY_GENERATION;
 		}
 

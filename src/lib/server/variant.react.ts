@@ -73,27 +73,32 @@ export class ReactVariantGenerator implements VariantGenerator {
 		answer: string,
 		window: Array<DatabaseMessage>
 	): Promise<string> {
-		const promptMessages = window
-			.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
-			.join('\n');
-		const promptReaction = answer;
-		const promptReactions = getMetadata().reaction.distinctReactions.join('\n');
-		const prompt = [
+		const instructions = [
 			'You will be given a sequence of messages in <messages></messages>.',
 			'Each line begins with the participant name, followed by the message.',
 			'The message may contain the <media/> tag to indicate that it is a media message.',
 			'You will be given a reaction to the last message in <reaction></reaction>.',
 			'You will be given a set of commonly used reactions in <reactions></reactions>.',
 			'Provide an alternative reaction to the one in the last message.',
-			'The last message is on the line before </messages>.',
 			'Try to only choose from the given reactions.',
-			'Take into account the context of the messages and the existing reaction.',
+			'Take into account the context of the messages and the existing reaction.'
+		].join(' ');
+		const prompt = [
+			instructions,
 			'',
-			`<messages>\n${promptMessages}\n</messages>`,
+			'<messages>',
+			window
+				.map((message) => `${message.participant.name}: ${message.text || '<media/>'}`)
+				.join('\n'),
+			'</messages>',
 			'',
-			`<reaction>\n${promptReaction}\n</reaction>`,
+			'<reaction>',
+			answer,
+			'</reaction>',
 			'',
-			`<reactions>\n${promptReactions}\n</reactions>`
+			'<reactions>',
+			getMetadata().reaction.distinctReactions.join('\n'),
+			'</reactions>'
 		].join('\n');
 
 		const alternative = await invokeModel(rng, prompt);
