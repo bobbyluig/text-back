@@ -96,8 +96,6 @@ export class ContinueVariantGenerator implements VariantGenerator {
 			'</messages>'
 		].join('\n');
 
-		console.log(prompt);
-
 		const alternative = await invokeModel(rng, prompt);
 		if (
 			alternative === answer ||
