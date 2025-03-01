@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { QuestionBank } from '$lib/question';
+	import { getSeedFromUrl } from '$lib/seed';
+
+	const questionBank = new QuestionBank({ initialSeed: getSeedFromUrl() });
 
 	let response: any = null;
-
-	const questionBank = new QuestionBank();
-
 	async function handleClick() {
 		response = JSON.stringify(await questionBank.getQuestion());
 	}
