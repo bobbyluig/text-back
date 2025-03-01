@@ -11,9 +11,10 @@
 </script>
 
 <h1 class="text-3xl font-bold underline">Hello world!</h1>
+
 <button on:click={handleClick}>Get Data</button>
 {#if response}
-	<p>{response}</p>
+	<p class="font-mono">{response}</p>
 {/if}
 
 <style lang="postcss">

@@ -2,14 +2,14 @@ import type { MessagePlatform } from '@prisma/client';
 
 /**
  * All question variants supported by the game. For more information about individual variants, see
- * the variant questions generators in `$lib/server`.
+ * the variant questions generators in `$lib/server`. The `proposal` variant is only handled in the
+ * client because it involves a fixed question.
  */
 export type QuestionVariant =
 	| 'continue'
 	| 'duration'
-	// The player guesses the whether the conversation is fake or real.
-	| 'fake'
 	| 'platform'
+	| 'proposal'
 	| 'react'
 	| 'when'
 	| 'who';
@@ -37,3 +37,14 @@ export type Question = {
 	messages: Array<QuestionMessage>;
 	variant: QuestionVariant;
 };
+
+/**
+ * Returns a question from a JSON string. Assumes that the input is valid.
+ */
+export function questionFromJsonString(jsonString: any): Question {
+	const question = JSON.parse(jsonString);
+	question.messages.forEach((message: any) => {
+		message.date = new Date(message.date);
+	});
+	return question as Question;
+}
