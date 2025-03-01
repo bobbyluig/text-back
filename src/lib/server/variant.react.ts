@@ -18,13 +18,13 @@ export type ReactVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The minimum number of messages in the question. This must be at least 2 since we need a message
 	 * and a response.
 	 */
-	minMessages: number;
+	minMessages?: number;
 };
 
 /**
@@ -35,13 +35,16 @@ export class ReactVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the react variant generator.
 	 */
-	private readonly _config: ReactVariantConfig;
+	private readonly _config: Required<ReactVariantConfig>;
 
 	/**
 	 * Creates a new react variant generator with the given config.
 	 */
 	constructor(config?: ReactVariantConfig) {
-		this._config = config ?? { maxMessages: 10, minMessages: 3 };
+		this._config = {
+			maxMessages: config?.maxMessages ?? 10,
+			minMessages: config?.minMessages ?? 3
+		};
 	}
 
 	/**

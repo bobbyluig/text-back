@@ -16,19 +16,19 @@ export type PlatformVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The minimum number of messages in the question. This must be at least 2 since we need a message
 	 * and a response.
 	 */
-	minMessages: number;
+	minMessages?: number;
 
 	/**
 	 * The minimum number of words in the anchor message. Messages that are too short are likely too
 	 * easy (e.g., a link) or too hard (e.g., a single reaction) to guess.
 	 */
-	minWords: number;
+	minWords?: number;
 };
 
 /**
@@ -39,13 +39,17 @@ export class PlatformVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the platform variant generator.
 	 */
-	private readonly _config: PlatformVariantConfig;
+	private readonly _config: Required<PlatformVariantConfig>;
 
 	/**
 	 * Creates a new platform variant generator with the given config.
 	 */
 	constructor(config?: PlatformVariantConfig) {
-		this._config = config ?? { maxMessages: 10, minMessages: 3, minWords: 2 };
+		this._config = {
+			maxMessages: config?.maxMessages ?? 10,
+			minMessages: config?.minMessages ?? 3,
+			minWords: config?.minWords ?? 2
+		};
 	}
 
 	/**

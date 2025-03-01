@@ -18,13 +18,13 @@ export type ContinueVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The minimum number of messages in the question. This must be at least two since we need a
 	 * message before the one that is to be guessed.
 	 */
-	minMessages: number;
+	minMessages?: number;
 };
 
 /**
@@ -35,13 +35,16 @@ export class ContinueVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the continue variant generator.
 	 */
-	private readonly _config: ContinueVariantConfig;
+	private readonly _config: Required<ContinueVariantConfig>;
 
 	/**
 	 * Creates a new continue variant generator with the given config.
 	 */
 	constructor(config?: ContinueVariantConfig) {
-		this._config = config ?? { maxMessages: 10, minMessages: 3 };
+		this._config = {
+			maxMessages: config?.maxMessages ?? 10,
+			minMessages: config?.minMessages ?? 3
+		};
 	}
 
 	/**

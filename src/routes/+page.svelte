@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { QuestionBank } from '$lib/question';
+
 	let response: any = null;
 
-	function helloWorld() {
-		return fetch('/api?' + new URLSearchParams({ seed: '' }).toString()).then((res) => res.text());
-	}
+	const questionBank = new QuestionBank();
 
 	async function handleClick() {
-		response = await helloWorld();
+		response = JSON.stringify(await questionBank.getQuestion());
 	}
 </script>
 

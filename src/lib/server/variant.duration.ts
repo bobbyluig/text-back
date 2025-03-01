@@ -17,40 +17,40 @@ export type DurationVariantConfig = {
 	 * The number of additional messages to query for in the initial window to increase the likelihood
 	 * that a participant transition can be found.
 	 */
-	bufferMessages: number;
+	bufferMessages?: number;
 
 	/**
 	 * The maximum duration allowed as an answer or choice.
 	 */
-	maxDurationMs: number;
+	maxDurationMs?: number;
 
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The maximum scale factor to apply to the answer when generating the alternative. This applies
 	 * to both scaling up and scaling down.
 	 */
-	maxScaleFactor: number;
+	maxScaleFactor?: number;
 
 	/**
 	 * The minimum duration allowed as an answer or choice.
 	 */
-	minDurationMs: number;
+	minDurationMs?: number;
 
 	/**
-	 * The minimum number of messages in the question. This must be at least two since we need a 
+	 * The minimum number of messages in the question. This must be at least two since we need a
 	 * message and a response.
 	 */
-	minMessages: number;
+	minMessages?: number;
 
 	/**
 	 * The minimum scale factor to apply to the answer when generating the alternative. This applies
 	 * to both scaling up and scaling down.
 	 */
-	minScaleFactor: number;
+	minScaleFactor?: number;
 };
 
 /**
@@ -61,20 +61,20 @@ export class DurationVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the duration variant generator.
 	 */
-	private readonly _config: DurationVariantConfig;
+	private readonly _config: Required<DurationVariantConfig>;
 
 	/**
 	 * Creates a new duration variant generator with the given config.
 	 */
 	constructor(config?: DurationVariantConfig) {
-		this._config = config ?? {
-			bufferMessages: 10,
-			maxDurationMs: 7 * 24 * 3600 * 1000,
-			maxMessages: 10,
-			maxScaleFactor: 100,
-			minDurationMs: 1000,
-			minMessages: 3,
-			minScaleFactor: 1
+		this._config = {
+			bufferMessages: config?.bufferMessages ?? 10,
+			maxDurationMs: config?.maxDurationMs ?? 7 * 24 * 3600 * 1000,
+			maxMessages: config?.maxMessages ?? 10,
+			maxScaleFactor: config?.maxScaleFactor ?? 100,
+			minDurationMs: config?.minDurationMs ?? 1000,
+			minMessages: config?.minMessages ?? 3,
+			minScaleFactor: config?.minScaleFactor ?? 1
 		};
 	}
 

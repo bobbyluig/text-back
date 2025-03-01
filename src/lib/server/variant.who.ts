@@ -15,19 +15,19 @@ export type WhoVariantConfig = {
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The minimum number of messages in the question. This must be at least 2 since we need a message
 	 * and a response.
 	 */
-	minMessages: number;
+	minMessages?: number;
 
 	/**
 	 * The minimum number of words in the anchor message. Messages that are too short are likely too
 	 * easy (e.g., a link) or too hard (e.g., a single reaction) to guess.
 	 */
-	minWords: number;
+	minWords?: number;
 };
 
 /**
@@ -38,13 +38,17 @@ export class WhoVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the who variant generator.
 	 */
-	private readonly _config: WhoVariantConfig;
+	private readonly _config: Required<WhoVariantConfig>;
 
 	/**
 	 * Creates a new who variant generator with the given config.
 	 */
 	constructor(config?: WhoVariantConfig) {
-		this._config = config ?? { maxMessages: 10, minMessages: 3, minWords: 3 };
+		this._config = {
+			maxMessages: config?.maxMessages ?? 10,
+			minMessages: config?.minMessages ?? 3,
+			minWords: config?.minWords ?? 3
+		};
 	}
 
 	/**

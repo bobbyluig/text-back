@@ -15,22 +15,22 @@ export type WhenVariantConfig = {
 	/**
 	 * The maximum number of days to change when generating an alternative.
 	 */
-	maxDeltaDays: number;
+	maxDeltaDays?: number;
 
 	/**
 	 * The maximum number of messages in the question.
 	 */
-	maxMessages: number;
+	maxMessages?: number;
 
 	/**
 	 * The minimum number of days to change when generating an alternative.
 	 */
-	minDeltaDays: number;
+	minDeltaDays?: number;
 
 	/**
 	 * The minimum number of messages in the question.
 	 */
-	minMessages: number;
+	minMessages?: number;
 };
 
 /**
@@ -41,17 +41,17 @@ export class WhenVariantGenerator implements VariantGenerator {
 	/**
 	 * Config for the when variant generator.
 	 */
-	private readonly _config: WhenVariantConfig;
+	private readonly _config: Required<WhenVariantConfig>;
 
 	/**
 	 * Creates a new when variant generator with the given config.
 	 */
 	constructor(config?: WhenVariantConfig) {
-		this._config = config ?? {
-			maxDeltaDays: 365,
-			maxMessages: 10,
-			minDeltaDays: 1,
-			minMessages: 3
+		this._config = {
+			maxDeltaDays: config?.maxDeltaDays ?? 365,
+			maxMessages: config?.maxMessages ?? 10,
+			minDeltaDays: config?.minDeltaDays ?? 1,
+			minMessages: config?.minMessages ?? 3
 		};
 	}
 

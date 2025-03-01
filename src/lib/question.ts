@@ -1,4 +1,5 @@
 import type { MessagePlatform } from '@prisma/client';
+import pLimit, { type LimitFunction } from 'p-limit';
 
 /**
  * All question variants supported by the game. For more information about individual variants, see
@@ -39,12 +40,115 @@ export type Question = {
 };
 
 /**
- * Returns a question from a JSON string. Assumes that the input is valid.
+ * Configuration for the question bank.
  */
-export function questionFromJsonString(jsonString: any): Question {
-	const question = JSON.parse(jsonString);
-	question.messages.forEach((message: any) => {
-		message.date = new Date(message.date);
-	});
-	return question as Question;
+export type QuestionBankConfig = {
+	/**
+	 *  The concurrency limit to apply when fetching questions.
+	 */
+	concurrency?: number;
+
+	/**
+	 * The initial seed to use. The same initial seed guarantees the same sequence of questions.
+	 */
+	initialSeed?: string;
+
+	/**
+	 * The maximum number of questions to cache at any given time.
+	 */
+	maxCacheSize?: number;
+};
+
+/**
+ * The question bank caches questions from the server and handles initial seed manipulation. This
+ * ensures that the client can have the perception that there is no loading time between questions.
+ */
+export class QuestionBank {
+	/**
+	 * The API URL to use when communicating with the server.
+	 */
+	private static _API_URL = '/question';
+
+	/**
+	 * Configuration for the question bank.
+	 */
+	private readonly _config: Required<QuestionBankConfig>;
+	/**
+	 * The concurrency limit function to apply when fetching questions.
+	 */
+	private readonly _pLimit: LimitFunction;
+
+	/**
+	 * The cache of questions.
+	 */
+	private _cache: Array<Promise<Question>> = [];
+	/**
+	 * The current question count. This is combined with the seed to generated different questions.
+	 */
+	private _count: number = 0;
+
+	/**
+	 * Creates a new question bank.
+	 */
+	constructor(config?: QuestionBankConfig) {
+		this._config = {
+			concurrency: config?.concurrency ?? 1,
+			initialSeed: config?.initialSeed ?? '',
+			maxCacheSize: config?.maxCacheSize ?? 10
+		};
+		this._pLimit = pLimit(this._config.concurrency);
+		this._poll();
+	}
+
+	/**
+	 * Returns a question from the question bank. Logs any errors and retries until a question was
+	 * successfully returned.
+	 */
+	async getQuestion(): Promise<Question> {
+		while (true) {
+			this._poll();
+			try {
+				const question = await this._cache.shift();
+				if (question === undefined) {
+					throw new Error('Unexpected empty cache after poll');
+				}
+				return question;
+			} catch (error) {
+				console.log(error);
+			}
+		}
+	}
+
+	/**
+	 * Returns the next seed to pass to the server.
+	 */
+	private _nextSeed(): string {
+		return `${this._config.initialSeed}-${this._count++}`;
+	}
+
+	/**
+	 * Polls for questions and adds them to the cache.
+	 */
+	private _poll(): void {
+		while (this._cache.length < this._config.maxCacheSize) {
+			const params = new URLSearchParams({ seed: this._nextSeed() });
+			this._cache.push(
+				this._pLimit(async () => {
+					const result = await fetch(`${QuestionBank._API_URL}?${params}`);
+					return this._questionFromString(await result.text());
+				})
+			);
+		}
+	}
+
+	/**
+	 * Returns a question from a JSON string. Assumes that the input is valid.
+	 */
+	private _questionFromString(jsonString: string): Question {
+		const question = JSON.parse(jsonString);
+		question.messages.forEach((message: any) => {
+			message.date = new Date(message.date);
+		});
+		return question as Question;
+	}
 }
