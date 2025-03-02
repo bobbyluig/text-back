@@ -6,3 +6,5 @@
 	--font-serif: 'Roboto Serif', serif;
 	--font-mono: 'Roboto Mono', monospace;
 }
+
+@plugin 'tailwind-scrollbar';
