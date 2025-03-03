@@ -164,7 +164,7 @@ export type QuestionMessageMask = {
 };
 
 /**
- * Represents mask options for a question.
+ * Represents mask options for attributes of a question.
  */
 export type QuestionMask = { maskRecipient: boolean; messageMasks: Array<QuestionMessageMask> };
 
