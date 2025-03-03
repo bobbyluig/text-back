@@ -158,16 +158,16 @@ export class QuestionBank {
  * Represents mask options for attributes of a message.
  */
 export type QuestionMessageMask = {
-	maskContent: boolean;
-	maskDate: boolean;
-	maskPlatform: boolean;
-	maskReaction: boolean;
+	content: boolean;
+	date: boolean;
+	platform: boolean;
+	reaction: boolean;
 };
 
 /**
  * Represents mask options for attributes of a question.
  */
-export type QuestionMask = { maskRecipient: boolean; messageMasks: Array<QuestionMessageMask> };
+export type QuestionMask = { recipient: boolean; messages: Array<QuestionMessageMask> };
 
 /**
  * Returns the mask options for the corresponding question. This is exclusively handled by the
@@ -175,46 +175,46 @@ export type QuestionMask = { maskRecipient: boolean; messageMasks: Array<Questio
  */
 export function generateQuestionMask(question: Question): QuestionMask {
 	const mask = {
-		maskRecipient: false,
-		messageMasks: question.messages.map(() => ({
-			maskContent: false,
-			maskDate: false,
-			maskPlatform: false,
-			maskReaction: false
+		recipient: false,
+		messages: question.messages.map(() => ({
+			content: false,
+			date: false,
+			platform: false,
+			reaction: false
 		}))
 	};
 
 	switch (question.variant) {
 		case 'continue':
-			mask.messageMasks[mask.messageMasks.length - 1].maskContent = true;
+			mask.messages[mask.messages.length - 1].content = true;
 			break;
 		case 'duration':
-			mask.messageMasks[mask.messageMasks.length - 1].maskDate = true;
+			mask.messages[mask.messages.length - 1].date = true;
 			break;
 		case 'platform':
-			mask.messageMasks.forEach((messageMask, i) => {
-				messageMask.maskPlatform = true;
-				if (i !== mask.messageMasks.length - 1) {
-					messageMask.maskContent = true;
+			mask.messages.forEach((message, i) => {
+				message.platform = true;
+				if (i !== mask.messages.length - 1) {
+					message.content = true;
 				}
 			});
 			break;
 		case 'proposal':
-			mask.messageMasks[mask.messageMasks.length - 1].maskContent = true;
+			mask.messages[mask.messages.length - 1].content = true;
 			break;
 		case 'react':
-			mask.messageMasks[mask.messageMasks.length - 1].maskReaction = true;
+			mask.messages[mask.messages.length - 1].reaction = true;
 			break;
 		case 'when':
-			mask.messageMasks.forEach((messageMask) => {
-				messageMask.maskDate = true;
+			mask.messages.forEach((message) => {
+				message.date = true;
 			});
 			break;
 		case 'who':
-			mask.maskRecipient = true;
-			mask.messageMasks.forEach((messageMask, i) => {
-				if (i !== mask.messageMasks.length - 1) {
-					messageMask.maskContent = true;
+			mask.recipient = true;
+			mask.messages.forEach((message, i) => {
+				if (i !== mask.messages.length - 1) {
+					message.content = true;
 				}
 			});
 			break;
