@@ -153,3 +153,70 @@ export class QuestionBank {
 		return question as Question;
 	}
 }
+
+/**
+ * Represents mask options for attributes of a message.
+ */
+export type QuestionMessageMask = {
+	maskContent: boolean;
+	maskMetadata: boolean;
+	maskReaction: boolean;
+};
+
+/**
+ * Represents mask options for a question.
+ */
+export type QuestionMask = { maskRecipient: boolean; messageMasks: Array<QuestionMessageMask> };
+
+/**
+ * Returns the mask options for the corresponding question. This is exclusively handled by the
+ * client because it is deterministically generated for each question.
+ */
+export function generateQuestionMask(question: Question): QuestionMask {
+	const mask = {
+		maskRecipient: false,
+		messageMasks: question.messages.map(() => ({
+			maskContent: false,
+			maskMetadata: false,
+			maskReaction: false
+		}))
+	};
+
+	switch (question.variant) {
+		case 'continue':
+			mask.messageMasks[mask.messageMasks.length - 1].maskContent = true;
+			break;
+		case 'duration':
+			mask.messageMasks[mask.messageMasks.length - 1].maskMetadata = true;
+			break;
+		case 'platform':
+			mask.messageMasks.forEach((messageMask, i) => {
+				messageMask.maskMetadata = true;
+				if (i !== mask.messageMasks.length - 1) {
+					messageMask.maskContent = true;
+				}
+			});
+			break;
+		case 'proposal':
+			mask.messageMasks[mask.messageMasks.length - 1].maskContent = true;
+			break;
+		case 'react':
+			mask.messageMasks[mask.messageMasks.length - 1].maskReaction = true;
+			break;
+		case 'when':
+			mask.messageMasks.forEach((messageMask) => {
+				messageMask.maskMetadata = true;
+			});
+			break;
+		case 'who':
+			mask.maskRecipient = true;
+			mask.messageMasks.forEach((messageMask, i) => {
+				if (i !== mask.messageMasks.length - 1) {
+					messageMask.maskContent = true;
+				}
+			});
+			break;
+	}
+
+	return mask;
+}

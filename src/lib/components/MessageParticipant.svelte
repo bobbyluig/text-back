@@ -1,8 +1,12 @@
 <script lang="ts">
-	import type { QuestionMessage } from '$lib/question';
+	import type { QuestionMessage, QuestionMessageMask } from '$lib/question';
 	import { MessagePlatform } from '@prisma/client';
 
-	const { message, recipient }: { message: QuestionMessage; recipient: string } = $props();
+	const {
+		mask,
+		message,
+		recipient
+	}: { mask: QuestionMessageMask; message: QuestionMessage; recipient: string } = $props();
 	const isSender = message.participant !== recipient;
 
 	/**
