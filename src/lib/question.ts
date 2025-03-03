@@ -159,7 +159,8 @@ export class QuestionBank {
  */
 export type QuestionMessageMask = {
 	maskContent: boolean;
-	maskMetadata: boolean;
+	maskDate: boolean;
+	maskPlatform: boolean;
 	maskReaction: boolean;
 };
 
@@ -177,7 +178,8 @@ export function generateQuestionMask(question: Question): QuestionMask {
 		maskRecipient: false,
 		messageMasks: question.messages.map(() => ({
 			maskContent: false,
-			maskMetadata: false,
+			maskDate: false,
+			maskPlatform: false,
 			maskReaction: false
 		}))
 	};
@@ -187,11 +189,11 @@ export function generateQuestionMask(question: Question): QuestionMask {
 			mask.messageMasks[mask.messageMasks.length - 1].maskContent = true;
 			break;
 		case 'duration':
-			mask.messageMasks[mask.messageMasks.length - 1].maskMetadata = true;
+			mask.messageMasks[mask.messageMasks.length - 1].maskDate = true;
 			break;
 		case 'platform':
 			mask.messageMasks.forEach((messageMask, i) => {
-				messageMask.maskMetadata = true;
+				messageMask.maskPlatform = true;
 				if (i !== mask.messageMasks.length - 1) {
 					messageMask.maskContent = true;
 				}
@@ -205,7 +207,7 @@ export function generateQuestionMask(question: Question): QuestionMask {
 			break;
 		case 'when':
 			mask.messageMasks.forEach((messageMask) => {
-				messageMask.maskMetadata = true;
+				messageMask.maskDate = true;
 			});
 			break;
 		case 'who':
