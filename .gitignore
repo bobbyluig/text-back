@@ -29,3 +29,6 @@ vite.config.ts.timestamp-*
 
 # Media
 static/media
+
+# VSCode
+.vscode
