@@ -1,6 +1,7 @@
 import { Random } from '$lib/random';
 import { generateText } from 'ai';
 import { ollama } from 'ollama-ai-provider';
+import { SYSTEM_MESSAGE_EXTRA } from '$env/static/private';
 
 /**
  * The local model name to use.
@@ -13,14 +14,19 @@ const MODEL_NAME = 'llama3.1:8b';
 const TEMPERATURE = 0.8;
 
 /**
- * The system message passed to every model call.
+ * The base system message passed to every model call.
  */
-const SYSTEM_MESSAGE = [
+const SYSTEM_MESSAGE_BASE = [
 	'You are a helpful assistant in a game about texting.',
-	'Any messages you are given will be from two people who are dating and know each other well.',
 	'You are generating a single output given the prompt.',
 	'Do not include any extra text.'
 ].join(' ');
+
+/**
+ * The system message passed to every model call which includes additional conversation-specific
+ * and participant-specific context.
+ */
+const SYSTEM_MESSAGE = SYSTEM_MESSAGE_BASE + ' ' + SYSTEM_MESSAGE_EXTRA;
 
 /**
  * Generates a string list response to the given prompt using Ollama running locally. May throw an

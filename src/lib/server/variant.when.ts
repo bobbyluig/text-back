@@ -71,6 +71,7 @@ export class WhenVariantGenerator implements VariantGenerator {
 			answer: this._getDateString(answer),
 			choices: rng.shuffle([answer, alternative]).map(this._getDateString),
 			messages: window.map(convertMessage),
+			recipient: rng.choice(getMetadata().participant.distinctNames),
 			variant: 'when'
 		};
 	}

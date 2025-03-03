@@ -5,6 +5,7 @@ import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
+	otherParticipant,
 	RETRY_GENERATION,
 	type DatabaseMessage,
 	type VariantGenerator
@@ -63,6 +64,7 @@ export class ContinueVariantGenerator implements VariantGenerator {
 			answer,
 			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
+			recipient: otherParticipant(window[window.length - 1].participant.name),
 			variant: 'continue'
 		};
 	}

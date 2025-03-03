@@ -77,10 +77,10 @@
 </script>
 
 <main class="flex justify-center items-center min-h-screen bg-gray-800">
-	<div class="w-[95vw] max-w-[420px] h-[95vh] max-h-[800px] bg-white rounded-3xl flex flex-col">
-		<div class="px-4 py-2 bg-gray-100 rounded-t-3xl text-center">
-			<p class="text-xl font-semibold text-gray-800">Lujing Cen</p>
-			<p class="text-xs text-gray-500">Score: 0 · Streak: 0</p>
+	<div class="w-[95vw] max-w-[420px] h-[95vh] bg-white rounded-3xl flex flex-col">
+		<div class="px-4 py-2 bg-gray-100 rounded-t-3xl text-center shadow-md">
+			<div class="text-xl font-semibold text-gray-800">Lujing Cen</div>
+			<div class="text-xs text-gray-500">Score: 0 · Streak: 0</div>
 		</div>
 
 		<div class="flex-1 overflow-y-scroll p-4 grid grid-cols-1 gap-4 scrollbar-none">
@@ -89,9 +89,9 @@
 					class="grid {message.sender === 'me' ? 'justify-items-end' : 'justify-items-start'} 
 					{message.reaction ? 'mb-4' : ''}"
 				>
-					<span class="text-xs text-gray-500 mb-1">
-						Messenger · {formatTime(message.timestamp)}
-					</span>
+					<div class="text-xs text-gray-500 mb-1">
+						<div>Messenger · {formatTime(message.timestamp)}</div>
+					</div>
 					<div
 						class="{message.sender === 'me'
 							? 'bg-green-500 text-white'
@@ -103,7 +103,7 @@
 							<div
 								class="absolute -bottom-4 {message.sender === 'me'
 									? 'left-0'
-									: 'right-0'} bg-white rounded-full px-1.5 py-0.5 shadow-sm text-sm"
+									: 'right-0'} bg-white rounded-full px-1.5 py-0.5 shadow-md text-sm"
 							>
 								{message.reaction}
 							</div>

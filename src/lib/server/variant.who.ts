@@ -64,6 +64,7 @@ export class WhoVariantGenerator implements VariantGenerator {
 			answer: window[window.length - 1].participant.name,
 			choices: rng.shuffle([...getMetadata().participant.distinctNames]),
 			messages: window.map(convertMessage),
+			recipient: rng.choice(getMetadata().participant.distinctNames),
 			variant: 'who'
 		};
 	}

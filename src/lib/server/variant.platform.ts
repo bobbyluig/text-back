@@ -70,6 +70,7 @@ export class PlatformVariantGenerator implements VariantGenerator {
 			answer,
 			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
+			recipient: rng.choice(getMetadata().participant.distinctNames),
 			variant: 'platform'
 		};
 	}

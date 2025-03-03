@@ -36,6 +36,7 @@ export type Question = {
 	answer: string;
 	choices: Array<string>;
 	messages: Array<QuestionMessage>;
+	recipient: string;
 	variant: QuestionVariant;
 };
 

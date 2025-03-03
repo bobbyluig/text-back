@@ -4,6 +4,7 @@ import {
 	convertMessage,
 	getMessageSlice,
 	getRandomMessage,
+	otherParticipant,
 	RETRY_GENERATION,
 	type VariantGenerator
 } from '$lib/server/variant.common';
@@ -116,6 +117,7 @@ export class DurationVariantGenerator implements VariantGenerator {
 			answer: this._makeDurationString(answer),
 			choices: rng.shuffle([answer, alternative]).map(this._makeDurationString),
 			messages: window.map(convertMessage),
+			recipient: otherParticipant(window[window.length - 1].participant.name),
 			variant: 'duration'
 		};
 	}

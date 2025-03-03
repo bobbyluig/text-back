@@ -114,3 +114,10 @@ export async function getMessageSlice(
 	}
 	return messages;
 }
+
+/**
+ * Returns the other participant in the conversation.
+ */
+export function otherParticipant(participant: string): string {
+	return getMetadata().participant.distinctNames.filter((name) => name !== participant)[0];
+}

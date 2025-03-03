@@ -63,6 +63,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 			answer,
 			choices: rng.shuffle([answer, alternative]),
 			messages: window.map(convertMessage),
+			recipient: window[window.length - 1].participant.name,
 			variant: 'react'
 		};
 	}
