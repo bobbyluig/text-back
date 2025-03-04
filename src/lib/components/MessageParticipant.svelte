@@ -41,14 +41,18 @@
 	{message.reaction ? 'mb-4' : ''}"
 >
 	<div class="text-xs text-gray-500 mb-1">
-		<div>{formatPlatform(message.platform)} · {formatDate(message.date)}</div>
+		<div>
+			<span>{mask.platform ? 'Platform Hidden' : formatPlatform(message.platform)}</span>
+			<span> · </span>
+			<span>{mask.date ? 'Date Hidden' : formatDate(message.date)}</span>
+		</div>
 	</div>
 	<div
 		class="rounded-2xl px-4 py-2 max-w-[70%] relative group break-words
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
 		{message.content}
-		{#if message.reaction}
+		{#if !mask.reaction && message.reaction}
 			<div
 				class="absolute -bottom-4 bg-white rounded-full px-1.5 py-0.5 shadow-md text-sm
 				{isSender ? 'left-0' : 'right-0'}"

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import IconSend from '~icons/material-symbols/send';
 
+	import { blur, crossfade, draw, fade, fly, scale, slide } from 'svelte/transition';
+
 	interface Message {
 		id: number;
 		text: string;
@@ -74,6 +76,11 @@
 			minute: '2-digit'
 		});
 	}
+
+	let show = $state(false);
+	setTimeout(() => {
+		show = true;
+	}, 1000);
 </script>
 
 <main class="flex justify-center items-center min-h-screen bg-gray-800">
@@ -87,11 +94,14 @@
 			{#each messages as message}
 				<div
 					class="grid {message.sender === 'me' ? 'justify-items-end' : 'justify-items-start'} 
-					{message.reaction ? 'mb-4' : ''}"
+					{message.reaction && show ? 'mb-4' : ''}
+					transition-all"
 				>
-					<div class="text-xs text-gray-500 mb-1">
-						<div>Messenger · {formatTime(message.timestamp)}</div>
-					</div>
+					{#if show}
+						<div class="text-xs text-gray-500 mb-1" transition:slide>
+							<div>Messenger · {formatTime(message.timestamp)}</div>
+						</div>
+					{/if}
 					<div
 						class="{message.sender === 'me'
 							? 'bg-green-500 text-white'
@@ -99,7 +109,7 @@
 						rounded-2xl px-4 py-2 max-w-[70%] relative group break-words"
 					>
 						{message.text}
-						{#if message.reaction}
+						{#if message.reaction && show}
 							<div
 								class="absolute -bottom-4 {message.sender === 'me'
 									? 'left-0'
