@@ -55,10 +55,9 @@
 		{#if message.reaction}
 			<div
 				class="absolute -bottom-4 bg-white rounded-full px-1.5 py-0.5 shadow-md text-sm
-				{isSender ? 'left-0' : 'right-0'}
-				{mask.reaction ? 'opacity-0' : ''}"
+				{isSender ? 'left-0' : 'right-0'}"
 			>
-				{message.reaction}
+				{mask.reaction ? '⬛' : message.reaction}
 			</div>
 		{/if}
 	</div>

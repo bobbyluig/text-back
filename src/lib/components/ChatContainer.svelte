@@ -6,7 +6,9 @@
 
 	const { question, mask }: { question: Question; mask: QuestionMask } = $props();
 
-	let messages = $state([]);
+	let participantMessages = $state([]);
+	let systemMessages = $state([]);
+
 	let score = $state(0);
 	let streak = $state(0);
 
