@@ -4,7 +4,7 @@
 	import ContentText from './ContentText.svelte';
 
 	interface Props {
-		mask?: QuestionMessageMask;
+		mask: QuestionMessageMask;
 		message: QuestionMessage;
 		recipient: string;
 	}
@@ -39,16 +39,16 @@
 >
 	<div class="text-xs text-gray-500 mb-1">
 		<div>
-			<span>{mask?.platform ? 'Platform Hidden' : formatPlatform(message.platform)}</span>
+			<span>{mask.platform ? 'Platform Hidden' : formatPlatform(message.platform)}</span>
 			<span> · </span>
-			<span>{mask?.date ? 'Date Hidden' : formatDate(message.date)}</span>
+			<span>{mask.date ? 'Date Hidden' : formatDate(message.date)}</span>
 		</div>
 	</div>
 	<div
 		class="rounded-2xl px-4 py-2 max-w-[70%] relative group break-words
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
-		{#if mask?.content}
+		{#if mask.content}
 			<ContentText content={'Message Hidden'} />
 		{:else if !message.isMedia}
 			<ContentText content={message.content} />
@@ -61,7 +61,7 @@
 				class="absolute -bottom-4 bg-white rounded-full px-1.5 py-0.5 shadow-md text-sm
 				{isSender ? 'left-0' : 'right-0'}"
 			>
-				{mask?.reaction ? '⬛' : message.reaction}
+				{mask.reaction ? '⬛' : message.reaction}
 			</div>
 		{/if}
 	</div>
