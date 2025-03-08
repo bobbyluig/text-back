@@ -1,5 +1,9 @@
 <script lang="ts">
-	const { content }: { content: string } = $props();
+	interface Props {
+		content: string;
+	}
+
+	const { content }: Props = $props();
 	const isLink = content.startsWith('http://') || content.startsWith('https://');
 </script>
 

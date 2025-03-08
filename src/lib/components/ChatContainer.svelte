@@ -1,30 +1,21 @@
 <script lang="ts">
-	import { generateQuestionMask, type Question } from '$lib/question';
+	import { generateQuestionMask, type Question, type QuestionMask } from '$lib/question';
 	import ChatFooter from './ChatFooter.svelte';
 	import ChatHeader from './ChatHeader.svelte';
 	import MessageParticipant from './MessageParticipant.svelte';
 
 	interface Props {
+		mask?: QuestionMask;
 		question: Question;
+		score: number;
+		streak: number;
+		submit: (answer: string) => void;
 	}
 
-	const { question }: Props = $props();
-	const mask = generateQuestionMask(question);
+	const { mask, question, score, streak, submit }: Props = $props();
 
 	let participantMessages = $state([]);
 	let systemMessages = $state([]);
-
-	let score = $state(0);
-	let streak = $state(0);
-
-	function markAnswerCorrect() {
-		score++;
-		streak++;
-	}
-
-	function markAnswerIncorrect() {
-		streak = 0;
-	}
 </script>
 
 <div class="w-[95vw] max-w-[420px] h-[95vh] bg-white rounded-3xl flex flex-col">
@@ -32,7 +23,7 @@
 
 	<div class="flex-1 overflow-x-scroll p-4 flex flex-col gap-4 scrollbar-none">
 		{#each question.messages as message, index}
-			<MessageParticipant mask={mask.messages[index]} {message} recipient={question.recipient} />
+			<MessageParticipant mask={mask?.messages[index]} {message} recipient={question.recipient} />
 		{/each}
 	</div>
 
