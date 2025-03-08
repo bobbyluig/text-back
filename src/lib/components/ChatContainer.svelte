@@ -5,14 +5,14 @@
 	import MessageParticipant from './MessageParticipant.svelte';
 
 	interface Props {
-		mask?: QuestionMask;
 		question: Question;
 		score: number;
 		streak: number;
 		submit: (answer: string) => void;
 	}
 
-	const { mask, question, score, streak, submit }: Props = $props();
+	const { question, score, streak, submit }: Props = $props();
+	const mask = generateQuestionMask(question);
 
 	let participantMessages = $state([]);
 	let systemMessages = $state([]);

@@ -9,7 +9,6 @@
 
 	const questionBank = new QuestionBank({ initialSeed: '89', maxCacheSize: 1 });
 
-	let mask: QuestionMask | undefined = $state();
 	let question: Question | undefined = $state();
 	let score: number = $state(0);
 	let streak: number = $state(0);
@@ -27,7 +26,6 @@
 
 	questionBank.getQuestion().then((q) => {
 		question = q;
-		mask = generateQuestionMask(q);
 	});
 </script>
 
@@ -35,6 +33,6 @@
 	class="flex justify-center items-center min-h-screen bg-gradient-to-r from-fuchsia-900 to-pink-900"
 >
 	{#if question}
-		<ChatContainer {mask} {question} {score} {streak} {submit} />
+		<ChatContainer {question} {score} {streak} {submit} />
 	{/if}
 </main>
