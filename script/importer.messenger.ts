@@ -1,7 +1,7 @@
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
-import { prisma } from './importer.common';
+import { normalizeEmoji, prisma } from './importer.common';
 
 /**
  * Data structure for a Messenger conversation.
@@ -81,7 +81,7 @@ export async function importMessenger(dataPath: string, outMediaPath: string): P
 							)
 							.map((reaction) => ({
 								participantId: participants.get(reaction.actor)!,
-								reaction: reaction.reaction
+								reaction: normalizeEmoji(reaction.reaction)
 							}))
 					}
 				},

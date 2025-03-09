@@ -1,7 +1,7 @@
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
-import { prisma } from './importer.common';
+import { normalizeEmoji, prisma } from './importer.common';
 
 /**
  * Data structure for a Instagram conversation.
@@ -97,7 +97,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 							.filter((reaction) => participants.has(reaction.actor))
 							.map((reaction) => ({
 								participantId: participants.get(reaction.actor)!,
-								reaction: decodeString(reaction.reaction)
+								reaction: normalizeEmoji(decodeString(reaction.reaction))
 							}))
 					}
 				},

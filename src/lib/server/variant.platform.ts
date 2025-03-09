@@ -1,3 +1,4 @@
+import { renderPlatform } from '$lib/render';
 import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
 import { getMetadata } from '$lib/server/metadata';
@@ -67,8 +68,8 @@ export class PlatformVariantGenerator implements VariantGenerator {
 		const alternative = this._getAlternative(rng, answer);
 
 		return {
-			answer,
-			choices: rng.shuffle([answer, alternative]),
+			answer: renderPlatform(answer),
+			choices: rng.shuffle([answer, alternative]).map(renderPlatform),
 			messages: window.map(convertMessage),
 			recipient: rng.choice(getMetadata().participant.distinctNames),
 			variant: 'platform'

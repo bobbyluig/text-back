@@ -109,7 +109,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 		if (
 			alternative === answer ||
 			[...alternative].length !== 1 ||
-			!/\p{Extended_Pictographic}/u.test(alternative)
+			!/\p{Extended_Pictographic}/gu.test(alternative)
 		) {
 			throw RETRY_GENERATION;
 		}

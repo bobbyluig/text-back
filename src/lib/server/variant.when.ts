@@ -1,3 +1,4 @@
+import { renderDate } from '$lib/render';
 import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
 import { getMetadata } from '$lib/server/metadata';
@@ -68,19 +69,12 @@ export class WhenVariantGenerator implements VariantGenerator {
 		const alternative = this._getAlternative(rng, answer);
 
 		return {
-			answer: this._getDateString(answer),
-			choices: rng.shuffle([answer, alternative]).map(this._getDateString),
+			answer: renderDate(answer),
+			choices: rng.shuffle([answer, alternative]).map(renderDate),
 			messages: window.map(convertMessage),
 			recipient: rng.choice(getMetadata().participant.distinctNames),
 			variant: 'when'
 		};
-	}
-
-	/**
-	 * Returns the string representation of the date for rendering.
-	 */
-	private _getDateString(date: Date): string {
-		return date.toLocaleDateString('en-us', { day: 'numeric', month: 'long', year: 'numeric' });
 	}
 
 	/**
