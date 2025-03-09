@@ -7,22 +7,24 @@
 		type QuestionMask
 	} from '$lib/question';
 
-	const questionBank = new QuestionBank({ initialSeed: '89', maxCacheSize: 1 });
+	const questionBank = new QuestionBank({ initialSeed: '17', maxCacheSize: 1 });
 
 	let question: Question | undefined = $state();
 	let score: number = $state(0);
 	let streak: number = $state(0);
 
-	function markAnswerCorrect() {
-		score++;
-		streak++;
-	}
+	function submit(answer: string) {
+		if (question?.variant === 'none') {
+			return;
+		}
 
-	function markAnswerIncorrect() {
-		streak = 0;
+		if (answer === question?.answer) {
+			score++;
+			streak++;
+		} else {
+			streak = 0;
+		}
 	}
-
-	function submit(answer: string) {}
 
 	questionBank.getQuestion().then((q) => {
 		question = q;

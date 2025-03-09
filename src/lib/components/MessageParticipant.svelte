@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { QuestionMessage, QuestionMessageMask } from '$lib/question';
 	import { MessagePlatform } from '@prisma/client';
+	import { fade } from 'svelte/transition';
 	import ContentText from './ContentText.svelte';
 
 	interface Props {
@@ -36,6 +37,7 @@
 	class="grid
 	{isSender ? 'justify-items-end' : 'justify-items-start'} 
 	{message.reaction ? 'mb-4' : ''}"
+	transition:fade
 >
 	<div class="text-xs text-gray-500 mb-1">
 		<div>
@@ -60,6 +62,7 @@
 			<div
 				class="absolute -bottom-4 bg-white rounded-full px-1.5 py-0.5 shadow-md text-sm
 				{isSender ? 'left-0' : 'right-0'}"
+				transition:fade|global={{ delay: 1000 }}
 			>
 				{mask.reaction ? '⬛' : message.reaction}
 			</div>
