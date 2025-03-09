@@ -172,7 +172,7 @@ export type QuestionMask = { recipient: boolean; messages: Array<QuestionMessage
  * Returns the mask options for the corresponding question. This is exclusively handled by the
  * client because it is deterministically generated for each question.
  */
-export function generateQuestionMask(question: Question): QuestionMask {
+export function getQuestionMask(question: Question): QuestionMask {
 	const mask = {
 		recipient: false,
 		messages: question.messages.map(() => ({
@@ -186,10 +186,12 @@ export function generateQuestionMask(question: Question): QuestionMask {
 	switch (question.variant) {
 		case 'continue':
 			mask.messages[mask.messages.length - 1].content = true;
-			break;
+			return mask;
 		case 'duration':
 			mask.messages[mask.messages.length - 1].date = true;
-			break;
+			return mask;
+		case 'none':
+			return mask;
 		case 'platform':
 			mask.messages.forEach((message, i) => {
 				message.platform = true;
@@ -197,18 +199,18 @@ export function generateQuestionMask(question: Question): QuestionMask {
 					message.content = true;
 				}
 			});
-			break;
+			return mask;
 		case 'proposal':
 			mask.messages[mask.messages.length - 1].content = true;
-			break;
+			return mask;
 		case 'react':
 			mask.messages[mask.messages.length - 1].reaction = true;
-			break;
+			return mask;
 		case 'when':
 			mask.messages.forEach((message) => {
 				message.date = true;
 			});
-			break;
+			return mask;
 		case 'who':
 			mask.recipient = true;
 			mask.messages.forEach((message, i) => {
@@ -216,8 +218,33 @@ export function generateQuestionMask(question: Question): QuestionMask {
 					message.content = true;
 				}
 			});
-			break;
+			return mask;
 	}
+}
 
-	return mask;
+/**
+ * Returns the description for a question to be shown in the client.
+ */
+export function getQuestionDescription(question: Question): string {
+	const recipient = question.recipient;
+	const sender = question.messages[question.messages.length - 1].participant;
+
+	switch (question.variant) {
+		case 'continue':
+			return `What was the hidden message from ${sender} to ${recipient}?`;
+		case 'duration':
+			return `How long did it take for ${sender} to reply to ${recipient}?`;
+		case 'none':
+			return '';
+		case 'platform':
+			return `What platform was the last message from ${sender} sent from?`;
+		case 'proposal':
+			return `What was the hidden message from ${sender} to ${recipient}?`;
+		case 'react':
+			return `What was the reaction on ${sender}'s message?`;
+		case 'when':
+			return `What day was the last message from ${sender} sent on?`;
+		case 'who':
+			return `Who sent the last message?`;
+	}
 }

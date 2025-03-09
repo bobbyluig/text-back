@@ -1,40 +1,43 @@
 <script lang="ts">
-	import { generateQuestionMask, type Question, type QuestionMessage } from '$lib/question';
+	import { getQuestionMask, type Question, type QuestionMessage } from '$lib/question';
 	import { fade } from 'svelte/transition';
 	import ChatFooter from './ChatFooter.svelte';
 	import ChatHeader from './ChatHeader.svelte';
-	import MessageParticipant from './MessageParticipant.svelte';
-	import MessageSystem from './MessageSystem.svelte';
+	import Message from './Message.svelte';
 
 	interface Props {
+		description: string;
 		question: Question;
 		score: number;
 		streak: number;
 		submit: (answer: string) => void;
 	}
 
-	const { question, score, streak, submit }: Props = $props();
+	const { description, question, score, streak, submit }: Props = $props();
 	const animate = question.variant !== 'none';
-	const mask = generateQuestionMask(question);
+	const mask = getQuestionMask(question);
 
 	let disabled: boolean = $state(true);
-	let participantMessages: Array<QuestionMessage> = $state([]);
-	let systemMessages: Array<string> = $state([]);
+	let maybeDescription: string = $state('');
+	let messages: Array<QuestionMessage> = $state([]);
 
 	async function animateMessages() {
 		if (!animate) {
-			participantMessages.push(...question.messages);
+			messages.push(...question.messages);
+			maybeDescription = description;
 			return;
 		}
 
 		for (const message of question.messages) {
 			await new Promise<void>((resolve) => setTimeout(resolve, 1000));
-			participantMessages.push(message);
+			messages.push(message);
 			if (message.reaction) {
 				await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 			}
 		}
 
+		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+		maybeDescription = description;
 		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 	}
 
@@ -52,20 +55,17 @@
 
 	<div class="flex flex-col-reverse flex-1 overflow-y-scroll scrollbar-none p-4">
 		<div class="grid gap-4">
-			{#each participantMessages as message, index}
-				<MessageParticipant
-					{animate}
-					mask={mask.messages[index]}
-					{message}
-					recipient={question.recipient}
-				/>
-			{/each}
-
-			{#each systemMessages as message}
-				<MessageSystem {message} />
+			{#each messages as message, index}
+				<Message {animate} mask={mask.messages[index]} {message} recipient={question.recipient} />
 			{/each}
 		</div>
 	</div>
 
-	<ChatFooter choices={question.choices} {disabled} {submit} />
+	<ChatFooter
+		{animate}
+		choices={question.choices}
+		description={maybeDescription}
+		{disabled}
+		{submit}
+	/>
 </div>

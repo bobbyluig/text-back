@@ -1,13 +1,16 @@
 <script lang="ts">
+	import { slide } from 'svelte/transition';
 	import IconSend from '~icons/material-symbols/send';
 
 	interface Props {
+		animate: boolean;
 		choices: Array<string>;
 		disabled: boolean;
+		description: string;
 		submit: (answer: string) => void;
 	}
 
-	const { choices, disabled, submit }: Props = $props();
+	const { animate, choices, disabled, description, submit }: Props = $props();
 
 	let answerIndex: number = $state(0);
 
@@ -35,9 +38,14 @@
 </script>
 
 <div class="p-4 bg-white rounded-b-3xl">
+	{#if description}
+		<p class="mb-4 text-center text-gray-500 text-xs" in:slide={{ duration: animate ? 400 : 0 }}>
+			{description}
+		</p>
+	{/if}
 	<div class="flex items-center gap-2">
 		<button
-			class="flex-1 rounded-2xl px-4 py-2 text-left border-2 border-gray-300 cursor-pointer disabled:cursor-default"
+			class="flex-1 rounded-2xl px-4 py-2 text-left cursor-pointer disabled:cursor-default bg-gray-200 text-gray-800"
 			{disabled}
 			onclick={changeAnswer}
 		>
@@ -46,7 +54,7 @@
 			{:else if choices.length === 1}
 				<span>{choices[0]}</span>
 			{:else}
-				<span class="text-gray-500">
+				<span class="text-gray-800">
 					{`(${answerIndex + 1}/${choices.length})`}
 				</span>
 				{#key answerIndex}
@@ -55,7 +63,7 @@
 			{/if}
 		</button>
 		<button
-			class="bg-green-500 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center hover:bg-green-600 transition-colors disabled:bg-gray-300 cursor-pointer disabled:cursor-default"
+			class="bg-green-500 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center hover:bg-green-600 transition-colors disabled:bg-gray-200 cursor-pointer disabled:cursor-default"
 			{disabled}
 			onclick={submitAnswer}
 		>

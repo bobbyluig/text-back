@@ -1,9 +1,10 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
-	import { QuestionBank, type Question } from '$lib/question';
+	import { getQuestionDescription, QuestionBank, type Question } from '$lib/question';
 
-	const questionBank = new QuestionBank({ initialSeed: '0' });
+	const questionBank = new QuestionBank({ initialSeed: '4', maxCacheSize: 1 });
 
+	let description: string = $state('');
 	let question: Question | undefined = $state();
 	let score: number = $state(0);
 	let streak: number = $state(0);
@@ -22,17 +23,19 @@
 			} else {
 				streak = 0;
 			}
-			const message =
+			description =
 				answer === question.answer
 					? 'Correct! Click send to continue.'
 					: 'Incorrect. Click send to continue.';
-			question = { ...question, answer: message, choices: [message], variant: 'none' };
+			question = { ...question, answer: '\u00A0', choices: ['\u00A0'], variant: 'none' };
 		}
 	}
 
 	function nextQuestion() {
+		description = '';
 		question = undefined;
 		questionBank.getQuestion().then((q) => {
+			description = getQuestionDescription(q);
 			question = q;
 		});
 	}
@@ -47,7 +50,7 @@
 	{#if question}
 		{#key question}
 			<div class="absolute">
-				<ChatContainer {question} {score} {streak} {submit} />
+				<ChatContainer {description} {question} {score} {streak} {submit} />
 			</div>
 		{/key}
 	{:else}
