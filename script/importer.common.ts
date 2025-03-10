@@ -1,6 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 
 /**
+ * Used to bound the copy concurrency for media files.
+ */
+export const COPY_CONCURRENCY = 100;
+
+/**
  * Prisma client instance for connecting to the local database.
  */
 export const prisma = new PrismaClient();

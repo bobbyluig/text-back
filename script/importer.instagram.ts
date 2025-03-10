@@ -1,7 +1,7 @@
 import cliProgress from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
-import { normalizeEmoji, prisma } from './importer.common';
+import { COPY_CONCURRENCY, normalizeEmoji, prisma } from './importer.common';
 
 /**
  * Data structure for a Instagram conversation.
@@ -44,6 +44,8 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 		participants.set(participant.name, prismaParticipant.id);
 	}
 
+	const mediaPromises = new Set<Promise<void>>();
+
 	const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 	bar.start(data.messages.length, 0);
 
@@ -60,11 +62,13 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			/^Liked a message$/.test(text) ||
 			/^.+ sent an attachment.$/.test(text)
 		) {
+			bar.increment();
 			continue;
 		}
 
 		const participantId = participants.get(message.sender_name);
 		if (participantId === undefined) {
+			bar.increment();
 			continue;
 		}
 
@@ -79,6 +83,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 		);
 
 		if (medias.length === 0 && text.length === 0) {
+			bar.increment();
 			continue;
 		}
 
@@ -108,16 +113,28 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			}
 		});
 
-		const mediaPromises = medias
-			.filter((media) => !media.uri.startsWith('https://'))
-			.map((media) =>
-				fs.promises.copyFile(media.uri, path.join(outMediaPath, path.basename(media.uri)))
-			);
+		for (const media of medias) {
+			if (media.uri.startsWith('https://')) {
+				continue;
+			}
+			const mediaPromise = fs.promises
+				.copyFile(media.uri, path.join(outMediaPath, path.basename(media.uri)))
+				.then(() => {
+					mediaPromises.delete(mediaPromise);
+				})
+				.then(() => bar.increment());
+			mediaPromises.add(mediaPromise);
+			bar.setTotal(bar.getTotal() + 1);
+		}
 
-		await Promise.all([createPromise, ...mediaPromises]);
+		await createPromise;
+		while (mediaPromises.size > COPY_CONCURRENCY) {
+			await Promise.any(mediaPromises.values());
+		}
 		bar.increment();
 	}
 
+	await Promise.all(mediaPromises);
 	bar.stop();
 }
 
