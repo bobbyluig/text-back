@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { QuestionMessage, QuestionMessageMask } from '$lib/question';
-	import { renderPlatform, renderTime } from '$lib/render';
+	import { isImage, renderPlatform, renderTime } from '$lib/render';
 	import { fade, slide } from 'svelte/transition';
+	import ContentImage from './ContentImage.svelte';
 	import ContentText from './ContentText.svelte';
 
 	interface Props {
@@ -38,13 +39,15 @@
 		</div>
 	</div>
 	<div
-		class="rounded-2xl px-4 py-2 max-w-[70%] relative group break-words
+		class="rounded-2xl max-w-[70%] relative group break-words
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
 		{#if mask.content}
 			<ContentText content={'Message Hidden'} />
 		{:else if !message.isMedia}
 			<ContentText content={message.content} />
+		{:else if isImage(message.content)}
+			<ContentImage src={'media/' + message.content} />
 		{:else}
 			{message.content}
 		{/if}

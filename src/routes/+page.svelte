@@ -41,6 +41,10 @@
 		});
 	}
 	nextQuestion();
+
+	async function preload(question: Question) {
+		
+	}
 </script>
 
 <main

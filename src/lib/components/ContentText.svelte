@@ -8,7 +8,11 @@
 </script>
 
 {#if isLink}
-	<a class="underline" href={content} target="_blank">{content}</a>
+	<div class="px-4 py-2">
+		<a class="underline" href={content} target="_blank">{content}</a>
+	</div>
 {:else}
-	<span>{content}</span>
+	<div class="px-4 py-2">
+		{content}
+	</div>
 {/if}
