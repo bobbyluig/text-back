@@ -21,7 +21,7 @@
 	}
 
 	function submitAnswer() {
-		submit(choices[answerIndex]);
+		submit(choices.length > 0 ? choices[answerIndex] : '');
 	}
 
 	function typewriter(node: HTMLElement, { speed = 1 }: { speed?: number }) {
@@ -46,13 +46,11 @@
 	<div class="flex items-center gap-2">
 		<button
 			class="flex-1 rounded-2xl px-4 py-2 text-left cursor-pointer disabled:cursor-default bg-gray-200 text-gray-800"
-			{disabled}
+			disabled={choices.length === 0 || disabled}
 			onclick={changeAnswer}
 		>
-			{#if disabled}
+			{#if choices.length === 0 || disabled}
 				&nbsp;
-			{:else if choices.length === 1}
-				<span>{choices[0]}</span>
 			{:else}
 				<span class="text-gray-800">
 					{`(${answerIndex + 1}/${choices.length})`}

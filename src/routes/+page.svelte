@@ -1,21 +1,22 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
-	import { getQuestionDescription, QuestionBank, type Question } from '$lib/question';
+	import { QuestionBank, type Question } from '$lib/question';
+	import { renderQuestion, revealChat, type RenderedChat } from '$lib/render';
 	import { fade } from 'svelte/transition';
 
-	const questionBank = new QuestionBank({ initialSeed: '70', maxCacheSize: 2 });
+	const questionBank = new QuestionBank({ initialSeed: '70', maxCacheSize: 1 });
 
-	let description: string = $state('');
+	let chat: RenderedChat | undefined = $state();
 	let question: Question | undefined = $state();
 	let score: number = $state(0);
 	let streak: number = $state(0);
 
 	function submit(answer: string) {
-		if (question === undefined) {
+		if (chat === undefined || question === undefined) {
 			return;
 		}
 
-		if (question.variant === 'none') {
+		if (chat.choices.length === 0) {
 			nextQuestion();
 		} else {
 			if (answer === question.answer) {
@@ -24,27 +25,28 @@
 			} else {
 				streak = 0;
 			}
-			description =
-				answer === question.answer
-					? 'Correct! Click send to continue.'
-					: 'Incorrect. Click send to continue.';
-			question = { ...question, answer: '\u00A0', choices: ['\u00A0'], variant: 'none' };
+			chat = {
+				...revealChat(chat),
+				choices: [],
+				description:
+					answer === question.answer
+						? 'Correct! Click send to continue.'
+						: 'Incorrect. Click send to continue.'
+			};
 		}
 	}
 
 	function nextQuestion() {
-		description = '';
+		chat = undefined;
 		question = undefined;
-		questionBank.getQuestion().then((q) => {
-			description = getQuestionDescription(q);
+		questionBank.getQuestion().then(async (q) => {
+			chat = await renderQuestion(q);
 			question = q;
 		});
 	}
 	nextQuestion();
 
-	async function preload(question: Question) {
-		
-	}
+	async function preload(question: Question) {}
 </script>
 
 <main
@@ -52,17 +54,17 @@
 >
 	<!-- <h1 class="text-6xl text-pink-300">Text Back</h1> -->
 
-	{#if question}
-		{#key question}
+	{#key chat}
+		{#if chat}
 			<div class="absolute">
-				<ChatContainer {description} {question} {score} {streak} {submit} />
+				<ChatContainer {chat} {score} {streak} {submit} />
 			</div>
-		{/key}
-	{:else}
-		<div
-			class="animate-spin h-10 w-10 border-4 border-green-100 rounded-full border-t-transparent"
-			in:fade|global={{ delay: 400 }}
-			out:fade|global
-		></div>
-	{/if}
+		{:else}
+			<div
+				class="animate-spin h-10 w-10 border-4 border-green-100 rounded-full border-t-transparent"
+				in:fade|global={{ delay: 400 }}
+				out:fade|global
+			></div>
+		{/if}
+	{/key}
 </main>

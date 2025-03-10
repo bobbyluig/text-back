@@ -1,33 +1,77 @@
+import type { Question, QuestionMessage } from '$lib/question';
 import type { MessagePlatform } from '@prisma/client';
 
 /**
- * Returns whether the given media content is an audio file.
+ * A rendered chat containing messages.
  */
-export function isAudio(content: string): boolean {
-	return ['.aac', '.wav'].some((extension) => content.endsWith(extension));
+export type RenderedChat = {
+	choices: Array<string>;
+	description: string;
+	mask: { recipient: boolean };
+	messages: Array<RenderedChatMessage>;
+	recipient: string;
+};
+
+/**
+ * A rendered chat message.
+ */
+export type RenderedChatMessage = {
+	content: string;
+	date: string;
+	mask: { content: boolean; date: boolean; platform: boolean; reaction: boolean };
+	participant: string;
+	platform: string;
+	reaction: string;
+	type: RenderedChatMessageType;
+};
+
+/**
+ * The type of the rendered content in a message.
+ */
+export type RenderedChatMessageType = 'audio' | 'image' | 'link' | 'text' | 'video';
+
+/**
+ * Returns the classification for the content in the message. This is more complicated than just
+ * looking at the extension because we do not know whether video files actually only contain audio.
+ */
+export async function classifyMessage(message: QuestionMessage): Promise<RenderedChatMessageType> {
+	if (!message.isMedia) {
+		return message.content.startsWith('http://') || message.content.startsWith('https://')
+			? 'link'
+			: 'text';
+	}
+
+	const audioExtension = ['.aac', '.mp3', '.wav'];
+	if (audioExtension.some((extension) => message.content.endsWith(extension))) {
+		return 'audio';
+	}
+
+	const imageExtensions = ['.gif', '.jpg', '.jpeg', '.png', '.webp'];
+	if (imageExtensions.some((extension) => message.content.endsWith(extension))) {
+		return 'image';
+	}
+
+	const videoExtensions = ['.mp4', '.webm'];
+	if (!videoExtensions.some((extension) => message.content.endsWith(extension))) {
+		throw new Error('Unsupported media extension');
+	}
+
+	return new Promise((resolve) => {
+		const video = document.createElement('video');
+		video.src = getMediaUrl(message.content);
+		video.preload = 'metadata';
+		video.onloadedmetadata = () => {
+			const hasVideo = video.videoWidth > 0 && video.videoHeight > 0;
+			resolve(hasVideo ? 'video' : 'audio');
+		};
+	});
 }
 
 /**
- * Returns whether the given media content is an image file.
+ * Returns the media URL associated with the content.
  */
-export function isImage(content: string): boolean {
-	return ['.gif', '.jpg', '.jpeg', '.png', '.webp'].some((extension) =>
-		content.endsWith(extension)
-	);
-}
-
-/**
- * Returns whether the given text content is a link.
- */
-export function isLink(content: string): boolean {
-	return content.startsWith('http://') || content.startsWith('https://');
-}
-
-/**
- * Returns whether the given media content is a video file.
- */
-export function isVideo(content: string): boolean {
-	return ['.mp4'].some((extension) => content.endsWith(extension));
+export function getMediaUrl(content: string): string {
+	return `media/${content}`;
 }
 
 /**
@@ -35,6 +79,31 @@ export function isVideo(content: string): boolean {
  */
 export function renderDate(date: Date): string {
 	return date.toLocaleDateString('en-us', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/**
+ * Returns a rendered description of the question variant.
+ */
+export function renderDescription(question: Question): string {
+	const recipient = question.recipient;
+	const sender = question.messages[question.messages.length - 1].participant;
+
+	switch (question.variant) {
+		case 'continue':
+			return `What was the hidden message to ${recipient}?`;
+		case 'duration':
+			return `How long did it take for ${sender} to reply?`;
+		case 'platform':
+			return `What platform was the last message sent from?`;
+		case 'proposal':
+			return `What was the hidden message to ${recipient}?`;
+		case 'react':
+			return `What was the reaction on ${sender}'s message?`;
+		case 'when':
+			return `What day was the last message sent on?`;
+		case 'who':
+			return `Who sent the last message?`;
+	}
 }
 
 /**
@@ -60,4 +129,79 @@ export function renderTime(date: Date): string {
 		hour: '2-digit',
 		minute: '2-digit'
 	});
+}
+
+/**
+ * Returns a rendered representation of the question.
+ */
+export async function renderQuestion(question: Question): Promise<RenderedChat> {
+	const rendered = {
+		choices: question.choices,
+		description: renderDescription(question),
+		mask: { recipient: false },
+		messages: await Promise.all(
+			question.messages.map(async (message) => ({
+				content: message.content,
+				date: renderTime(message.date),
+				mask: { content: false, date: false, platform: false, reaction: false },
+				participant: message.participant,
+				platform: renderPlatform(message.platform),
+				reaction: message.reaction,
+				type: await classifyMessage(message)
+			}))
+		),
+		recipient: question.recipient
+	};
+
+	switch (question.variant) {
+		case 'continue':
+			rendered.messages[rendered.messages.length - 1].mask.content = true;
+			break;
+		case 'duration':
+			rendered.messages[rendered.messages.length - 1].mask.date = true;
+			break;
+		case 'platform':
+			rendered.messages.forEach((message, i) => {
+				message.mask.platform = true;
+				if (i !== rendered.messages.length - 1) {
+					message.mask.content = true;
+				}
+			});
+			break;
+		case 'proposal':
+			rendered.messages[rendered.messages.length - 1].mask.content = true;
+			break;
+		case 'react':
+			rendered.messages[rendered.messages.length - 1].mask.reaction = true;
+			break;
+		case 'when':
+			rendered.messages.forEach((message) => {
+				message.mask.date = true;
+			});
+			break;
+		case 'who':
+			rendered.mask.recipient = true;
+			rendered.messages.forEach((message, i) => {
+				if (i !== rendered.messages.length - 1) {
+					message.mask.content = true;
+				}
+			});
+			break;
+	}
+
+	return rendered;
+}
+
+/**
+ * Returns a new rendered chat with all masks disabled.
+ */
+export function revealChat(chat: RenderedChat): RenderedChat {
+	return {
+		...chat,
+		mask: { recipient: false },
+		messages: chat.messages.map((message) => ({
+			...message,
+			mask: { content: false, date: false, platform: false, reaction: false }
+		}))
+	};
 }

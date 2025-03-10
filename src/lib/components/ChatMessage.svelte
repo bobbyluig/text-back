@@ -1,18 +1,19 @@
 <script lang="ts">
-	import type { QuestionMessage, QuestionMessageMask } from '$lib/question';
-	import { isImage, renderPlatform, renderTime } from '$lib/render';
+	import { getMediaUrl, type RenderedChatMessage } from '$lib/render';
 	import { fade, slide } from 'svelte/transition';
+	import ContentAudio from './ContentAudio.svelte';
 	import ContentImage from './ContentImage.svelte';
 	import ContentText from './ContentText.svelte';
+	import ContentLink from './ContentLink.svelte';
+	import ContentVideo from './ContentVideo.svelte';
 
 	interface Props {
 		animate: boolean;
-		mask: QuestionMessageMask;
-		message: QuestionMessage;
+		message: RenderedChatMessage;
 		recipient: string;
 	}
 
-	const { animate, mask, message, recipient }: Props = $props();
+	const { animate, message, recipient }: Props = $props();
 	const isSender = message.participant !== recipient;
 
 	let reaction: string = $state('');
@@ -33,23 +34,27 @@
 >
 	<div class="text-xs text-gray-500 mb-1">
 		<div>
-			<span>{mask.platform ? 'Platform Hidden' : renderPlatform(message.platform)}</span>
+			<span>{message.mask.platform ? 'Platform Hidden' : message.platform}</span>
 			<span> · </span>
-			<span>{mask.date ? 'Date Hidden' : renderTime(message.date)}</span>
+			<span>{message.mask.date ? 'Date Hidden' : message.date}</span>
 		</div>
 	</div>
 	<div
 		class="rounded-2xl max-w-[70%] relative group break-words
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
-		{#if mask.content}
+		{#if message.mask.content}
 			<ContentText content={'Message Hidden'} />
-		{:else if !message.isMedia}
-			<ContentText content={message.content} />
-		{:else if isImage(message.content)}
-			<ContentImage src={'media/' + message.content} />
+		{:else if message.type === 'audio'}
+			<ContentAudio />
+		{:else if message.type === 'image'}
+			<ContentImage src={getMediaUrl(message.content)} />
+		{:else if message.type === 'link'}
+			<ContentLink href={message.content} />
+		{:else if message.type === 'video'}
+			<ContentVideo />
 		{:else}
-			{message.content}
+			<ContentText content={message.content} />
 		{/if}
 
 		{#if reaction}
@@ -58,7 +63,7 @@
 				{isSender ? 'left-0' : 'right-0'}"
 				in:fade={{ duration: animate ? 150 : 0 }}
 			>
-				{mask.reaction ? '⬛' : reaction}
+				{message.mask.reaction ? '⬛' : reaction}
 			</div>
 		{/if}
 	</div>
