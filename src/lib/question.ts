@@ -231,19 +231,19 @@ export function getQuestionDescription(question: Question): string {
 
 	switch (question.variant) {
 		case 'continue':
-			return `What was the hidden message from ${sender} to ${recipient}?`;
+			return `What was the hidden message to ${recipient}?`;
 		case 'duration':
-			return `How long did it take for ${sender} to reply to ${recipient}?`;
+			return `How long did it take for ${sender} to reply?`;
 		case 'none':
 			return '';
 		case 'platform':
-			return `What platform was the last message from ${sender} sent from?`;
+			return `What platform was the last message sent from?`;
 		case 'proposal':
-			return `What was the hidden message from ${sender} to ${recipient}?`;
+			return `What was the hidden message to ${recipient}?`;
 		case 'react':
 			return `What was the reaction on ${sender}'s message?`;
 		case 'when':
-			return `What day was the last message from ${sender} sent on?`;
+			return `What day was the last message sent on?`;
 		case 'who':
 			return `Who sent the last message?`;
 	}

@@ -1,8 +1,9 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
 	import { getQuestionDescription, QuestionBank, type Question } from '$lib/question';
+	import { fade } from 'svelte/transition';
 
-	const questionBank = new QuestionBank({ initialSeed: '4', maxCacheSize: 1 });
+	const questionBank = new QuestionBank({ initialSeed: '70', maxCacheSize: 2 });
 
 	let description: string = $state('');
 	let question: Question | undefined = $state();
@@ -55,7 +56,9 @@
 		{/key}
 	{:else}
 		<div
-			class="animate-spin h-10 w-10 border-4 border-pink-300 rounded-full border-t-transparent"
+			class="animate-spin h-10 w-10 border-4 border-green-100 rounded-full border-t-transparent"
+			in:fade|global={{ delay: 400 }}
+			out:fade|global
 		></div>
 	{/if}
 </main>

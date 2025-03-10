@@ -39,9 +39,9 @@
 
 <div class="p-4 bg-white rounded-b-3xl">
 	{#if description}
-		<p class="mb-4 text-center text-gray-500 text-xs" in:slide={{ duration: animate ? 400 : 0 }}>
+		<div class="mb-1 text-gray-500 text-xs" in:slide={{ duration: animate ? 400 : 0 }}>
 			{description}
-		</p>
+		</div>
 	{/if}
 	<div class="flex items-center gap-2">
 		<button

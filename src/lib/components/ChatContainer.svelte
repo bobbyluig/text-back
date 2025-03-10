@@ -48,8 +48,8 @@
 
 <div
 	class="w-[95vw] max-w-[420px] h-[95vh] bg-white rounded-3xl flex flex-col"
-	in:fade={{ delay: 400 }}
-	out:fade
+	in:fade|global={{ delay: 400 }}
+	out:fade|global
 >
 	<ChatHeader mask={mask.recipient} recipient={question.recipient} {score} {streak} />
 
