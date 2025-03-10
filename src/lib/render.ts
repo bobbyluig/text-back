@@ -75,6 +75,60 @@ export function getMediaUrl(content: string): string {
 }
 
 /**
+ * Preloads an audio file. The returned promise resolves when the audio has been loaded.
+ */
+export async function preloadAudio(url: string): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const audio = new Audio();
+		audio.src = url;
+		audio.preload = 'auto';
+		audio.oncanplaythrough = () => resolve();
+	});
+}
+
+/**
+ * Preloads an image file. The returned promise resolves when the image has been loaded.
+ */
+export async function preloadImage(url: string): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const img = new Image();
+		img.src = url;
+		img.onload = () => resolve();
+	});
+}
+
+/**
+ * Preloads a video file. The returned promise resolves when the video has been loaded.
+ */
+export async function preloadVideo(url: string): Promise<void> {
+	return new Promise<void>((resolve) => {
+		const video = document.createElement('video');
+		video.src = url;
+		video.preload = 'auto';
+		video.oncanplaythrough = () => resolve();
+	});
+}
+
+/**
+ * Preloads all resources in a chat. The returned promise resolves when all resources have been
+ * preloaded. This is useful for ensuring that the rendered chat can be displayed smoothly.
+ */
+export async function preloadChat(chat: RenderedChat): Promise<void> {
+	await Promise.all(
+		chat.messages.map((message) => {
+			switch (message.type) {
+				case 'audio':
+					return preloadAudio(getMediaUrl(message.content));
+				case 'image':
+					return preloadImage(getMediaUrl(message.content));
+				case 'video':
+					return preloadVideo(getMediaUrl(message.content));
+			}
+		})
+	);
+}
+
+/**
  * Returns a rendered representation of the date.
  */
 export function renderDate(date: Date): string {

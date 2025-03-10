@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
 	import { QuestionBank, type Question } from '$lib/question';
-	import { renderQuestion, revealChat, type RenderedChat } from '$lib/render';
+	import { preloadChat, renderQuestion, revealChat, type RenderedChat } from '$lib/render';
 	import { fade } from 'svelte/transition';
 
 	const questionBank = new QuestionBank({ initialSeed: '70', maxCacheSize: 1 });
@@ -36,17 +36,18 @@
 		}
 	}
 
-	function nextQuestion() {
+	async function nextQuestion() {
 		chat = undefined;
 		question = undefined;
-		questionBank.getQuestion().then(async (q) => {
-			chat = await renderQuestion(q);
-			question = q;
-		});
+
+		const q = await questionBank.getQuestion();
+		const c = await renderQuestion(q);
+		await preloadChat(c);
+
+		chat = c;
+		question = q;
 	}
 	nextQuestion();
-
-	async function preload(question: Question) {}
 </script>
 
 <main
