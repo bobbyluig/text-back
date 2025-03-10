@@ -33,7 +33,6 @@
 		"eslint-config-prettier": "^10.0.1",
 		"eslint-plugin-svelte": "^2.46.1",
 		"globals": "^15.14.0",
-		"p-limit": "^6.2.0",
 		"prettier": "^3.4.2",
 		"prettier-plugin-svelte": "^3.3.3",
 		"prisma": "^6.4.1",
@@ -52,6 +51,7 @@
 		"ai": "^4.1.45",
 		"humanize-duration": "^3.32.1",
 		"ollama-ai-provider": "^1.2.0",
+		"p-limit": "^6.2.0",
 		"seedrandom": "^3.0.5"
 	}
 }

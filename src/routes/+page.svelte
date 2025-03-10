@@ -47,7 +47,7 @@
 		chat = c;
 		question = q;
 	}
-	nextQuestion();
+	// nextQuestion();
 </script>
 
 <main

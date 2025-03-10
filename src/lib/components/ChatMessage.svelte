@@ -1,11 +1,11 @@
 <script lang="ts">
+	import ContentAudio from '$lib/components/ContentAudio.svelte';
+	import ContentImage from '$lib/components/ContentImage.svelte';
+	import ContentLink from '$lib/components/ContentLink.svelte';
+	import ContentText from '$lib/components/ContentText.svelte';
+	import ContentVideo from '$lib/components/ContentVideo.svelte';
 	import { getMediaUrl, type RenderedChatMessage } from '$lib/render';
 	import { fade, slide } from 'svelte/transition';
-	import ContentAudio from './ContentAudio.svelte';
-	import ContentImage from './ContentImage.svelte';
-	import ContentText from './ContentText.svelte';
-	import ContentLink from './ContentLink.svelte';
-	import ContentVideo from './ContentVideo.svelte';
 
 	interface Props {
 		animate: boolean;
