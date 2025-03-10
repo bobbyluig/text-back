@@ -1,5 +1,5 @@
-import { MessagePlatform } from '@prisma/client';
 import { prisma } from '$lib/server/prisma';
+import { type MessagePlatform } from '@prisma/client';
 
 /**
  * Represents metadata about all conversations to simplify question generation. All ranges are

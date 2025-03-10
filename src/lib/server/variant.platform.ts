@@ -1,6 +1,6 @@
-import { renderPlatform } from '$lib/render';
 import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
+import { renderPlatform } from '$lib/render';
 import { getMetadata } from '$lib/server/metadata';
 import {
 	convertMessage,
@@ -8,7 +8,7 @@ import {
 	getRandomMessage,
 	type VariantGenerator
 } from '$lib/server/variant.common';
-import { MessagePlatform } from '@prisma/client';
+import { type MessagePlatform } from '@prisma/client';
 
 /**
  * The config for the platform variant generator.
