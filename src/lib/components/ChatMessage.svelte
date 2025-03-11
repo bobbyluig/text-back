@@ -40,7 +40,7 @@
 		</div>
 	</div>
 	<div
-		class="rounded-2xl max-w-[70%] relative group break-words
+		class="rounded-2xl max-w-[70%] relative break-words
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
 		{#if message.mask.content}
@@ -52,7 +52,7 @@
 		{:else if message.type === 'link'}
 			<ContentLink href={message.content} />
 		{:else if message.type === 'video'}
-			<ContentVideo />
+			<ContentVideo src={getMediaUrl(message.content)} />
 		{:else}
 			<ContentText content={message.content} />
 		{/if}

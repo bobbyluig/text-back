@@ -43,6 +43,14 @@
 		question = undefined;
 
 		const q = await questionBank.getQuestion();
+
+		q.messages[0].isMedia = true;
+		q.messages[0].content = 'messenger/651da6dc-474a-48c3-8b56-72f45eccdb15.mp4';
+		q.messages[1].isMedia = true;
+		q.messages[1].content = 'messenger/c502bf4a-11ce-43b8-8d5c-5a2c96ce6ac2.gif';
+		q.messages[2].isMedia = true;
+		q.messages[2].content = 'instagram/audioclip172697460800025515_549625730911265.mp4';
+
 		const c = await renderQuestion(q);
 		await preloadChat(c);
 
