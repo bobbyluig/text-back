@@ -40,9 +40,9 @@
 	{#if paused}
 		<button
 			onclick={togglePlay}
-			class="cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 p-2 text-white rounded-full"
+			class="cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/50 p-1 text-white rounded-full"
 		>
-			<IconPlay class="w-8 h-8" />
+			<IconPlay class="w-10 h-10" />
 		</button>
 	{/if}
 </div>

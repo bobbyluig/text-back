@@ -46,7 +46,7 @@
 		{#if message.mask.content}
 			<ContentText content={'Message Hidden'} />
 		{:else if message.type === 'audio'}
-			<ContentAudio />
+			<ContentAudio src={getMediaUrl(message.content)} />
 		{:else if message.type === 'image'}
 			<ContentImage src={getMediaUrl(message.content)} />
 		{:else if message.type === 'link'}

@@ -4,6 +4,8 @@
 	import Message from '$lib/components/ChatMessage.svelte';
 	import type { RenderedChat, RenderedChatMessage } from '$lib/render';
 	import { fade } from 'svelte/transition';
+	import ContentText from './ContentText.svelte';
+	import { mount } from 'svelte';
 
 	interface Props {
 		chat: RenderedChat;
