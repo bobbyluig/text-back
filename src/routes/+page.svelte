@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
 	import { QuestionBank, type Question } from '$lib/question';
-	import { preloadChat, renderQuestion, revealChat, type RenderedChat } from '$lib/render';
+	import { renderQuestion, revealChat, type RenderedChat } from '$lib/render';
 	import { fade } from 'svelte/transition';
 	import IconSend from '~icons/material-symbols/send';
 
@@ -52,7 +52,6 @@
 		q.messages[2].content = 'instagram/audioclip172697460800025515_549625730911265.mp4';
 
 		const c = await renderQuestion(q);
-		await preloadChat(c);
 
 		chat = c;
 		question = q;
