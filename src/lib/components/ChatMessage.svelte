@@ -4,7 +4,7 @@
 	import ContentLink from '$lib/components/ContentLink.svelte';
 	import ContentText from '$lib/components/ContentText.svelte';
 	import ContentVideo from '$lib/components/ContentVideo.svelte';
-	import { getMediaUrl, type RenderedChatMessage } from '$lib/render';
+	import { type RenderedChatMessage } from '$lib/render';
 	import { fade, slide } from 'svelte/transition';
 
 	interface Props {
@@ -44,17 +44,17 @@
 		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
 		{#if message.mask.content}
-			<ContentText content={'Message Hidden'} />
-		{:else if message.type === 'audio'}
-			<ContentAudio src={getMediaUrl(message.content)} />
-		{:else if message.type === 'image'}
-			<ContentImage src={getMediaUrl(message.content)} />
-		{:else if message.type === 'link'}
-			<ContentLink href={message.content} />
-		{:else if message.type === 'video'}
-			<ContentVideo src={getMediaUrl(message.content)} />
+			<ContentText data={'Message Hidden'} />
+		{:else if message.content.type === 'audio'}
+			<ContentAudio data={message.content.data} />
+		{:else if message.content.type === 'image'}
+			<ContentImage data={message.content.data} />
+		{:else if message.content.type === 'link'}
+			<ContentLink data={message.content.data} />
+		{:else if message.content.type === 'video'}
+			<ContentVideo data={message.content.data} />
 		{:else}
-			<ContentText content={message.content} />
+			<ContentText data={message.content.data} />
 		{/if}
 
 		{#if reaction}

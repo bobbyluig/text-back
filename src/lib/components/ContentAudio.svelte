@@ -4,10 +4,10 @@
 	import IconWaveform from '~icons/material-symbols/graphic-eq';
 
 	interface Props {
-		src: string;
+		data: string;
 	}
 
-	const { src }: Props = $props();
+	const { data }: Props = $props();
 
 	let audio: HTMLAudioElement;
 	let paused = $state(true);
@@ -39,5 +39,5 @@
 		<IconWaveform class="w-10 h-10" />
 	</button>
 
-	<audio bind:this={audio} {src} onended={onEnded} class="hidden"></audio>
+	<audio bind:this={audio} src={data} onended={onEnded} class="hidden"></audio>
 </div>

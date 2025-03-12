@@ -1,9 +1,9 @@
 <script lang="ts">
 	interface Props {
-		src: string;
+		data: string;
 	}
 
-	const { src }: Props = $props();
+	const { data }: Props = $props();
 </script>
 
-<img {src} alt={src} class="w-full h-full rounded-2xl max-h-[200px]" />
+<img src={data} alt={data} class="w-full h-full rounded-2xl max-h-[200px]" />

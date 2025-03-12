@@ -1,9 +1,9 @@
 <script lang="ts">
 	interface Props {
-		content: string;
+		data: string;
 	}
 
-	const { content }: Props = $props();
+	const { data }: Props = $props();
 </script>
 
-<div class="px-4 py-2">{content}</div>
+<div class="px-4 py-2">{data}</div>

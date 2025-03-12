@@ -16,56 +16,18 @@ export type RenderedChat = {
  * A rendered chat message.
  */
 export type RenderedChatMessage = {
-	content: string;
+	content:
+		| { type: 'audio'; data: string }
+		| { type: 'image'; data: string; metadata: { height: number; width: number } }
+		| { type: 'link'; data: string }
+		| { type: 'text'; data: string }
+		| { type: 'video'; data: string; metadata: { height: number; width: number } };
 	date: string;
 	mask: { content: boolean; date: boolean; platform: boolean; reaction: boolean };
 	participant: string;
 	platform: string;
 	reaction: string;
-	type: RenderedChatMessageType;
 };
-
-/**
- * The type of the rendered content in a message.
- */
-export type RenderedChatMessageType = 'audio' | 'image' | 'link' | 'text' | 'video';
-
-/**
- * Returns the classification for the content in the message. This is more complicated than just
- * looking at the extension because we do not know whether video files actually only contain audio.
- */
-export async function classifyMessage(message: QuestionMessage): Promise<RenderedChatMessageType> {
-	if (!message.isMedia) {
-		return message.content.startsWith('http://') || message.content.startsWith('https://')
-			? 'link'
-			: 'text';
-	}
-
-	const audioExtension = ['.aac', '.mp3', '.wav'];
-	if (audioExtension.some((extension) => message.content.endsWith(extension))) {
-		return 'audio';
-	}
-
-	const imageExtensions = ['.gif', '.jpg', '.jpeg', '.png', '.webp'];
-	if (imageExtensions.some((extension) => message.content.endsWith(extension))) {
-		return 'image';
-	}
-
-	const videoExtensions = ['.mp4', '.webm'];
-	if (!videoExtensions.some((extension) => message.content.endsWith(extension))) {
-		throw new Error('Unsupported media extension');
-	}
-
-	return new Promise((resolve) => {
-		const video = document.createElement('video');
-		video.src = getMediaUrl(message.content);
-		video.preload = 'metadata';
-		video.onloadedmetadata = () => {
-			const hasVideo = video.videoWidth > 0 && video.videoHeight > 0;
-			resolve(hasVideo ? 'video' : 'audio');
-		};
-	});
-}
 
 /**
  * Returns the media URL associated with the content.
@@ -110,22 +72,63 @@ export async function preloadVideo(url: string): Promise<void> {
 }
 
 /**
- * Preloads all resources in a chat. The returned promise resolves when all resources have been
- * preloaded. This is useful for ensuring that the rendered chat can be displayed smoothly.
+ * Returns the content of a message and preloads any necessary assets.
  */
-export async function preloadChat(chat: RenderedChat): Promise<void> {
-	await Promise.all(
-		chat.messages.map((message) => {
-			switch (message.type) {
-				case 'audio':
-					return preloadAudio(getMediaUrl(message.content));
-				case 'image':
-					return preloadImage(getMediaUrl(message.content));
-				case 'video':
-					return preloadVideo(getMediaUrl(message.content));
+export async function renderContent(
+	message: QuestionMessage
+): Promise<RenderedChatMessage['content']> {
+	if (!message.isMedia) {
+		return message.content.startsWith('http://') || message.content.startsWith('https://')
+			? { type: 'link', data: message.content }
+			: { type: 'text', data: message.content };
+	}
+
+	const audioExtension = ['.aac', '.mp3', '.wav'];
+	if (audioExtension.some((extension) => message.content.endsWith(extension))) {
+		return new Promise((resolve) => {
+			const audio = new Audio();
+			audio.src = getMediaUrl(message.content);
+			audio.preload = 'auto';
+			audio.oncanplaythrough = () => resolve({ type: 'audio', data: audio.src });
+		});
+	}
+
+	const imageExtensions = ['.gif', '.jpg', '.jpeg', '.png', '.webp'];
+	if (imageExtensions.some((extension) => message.content.endsWith(extension))) {
+		return new Promise((resolve) => {
+			const img = new Image();
+			img.src = getMediaUrl(message.content);
+			img.onload = () =>
+				resolve({
+					type: 'image',
+					data: img.src,
+					metadata: { height: img.height, width: img.width }
+				});
+		});
+	}
+
+	const videoExtensions = ['.mp4', '.webm'];
+	if (!videoExtensions.some((extension) => message.content.endsWith(extension))) {
+		throw new Error('Unsupported media extension');
+	}
+
+	return new Promise((resolve) => {
+		const video = document.createElement('video');
+		video.src = getMediaUrl(message.content);
+		video.preload = 'metadata';
+		video.onloadedmetadata = () => {
+			const hasVideo = video.videoHeight > 0 && video.videoWidth > 0;
+			if (!hasVideo) {
+				resolve({ type: 'audio', data: video.src });
+			} else {
+				resolve({
+					type: 'video',
+					data: video.src,
+					metadata: { height: video.videoHeight, width: video.videoWidth }
+				});
 			}
-		})
-	);
+		};
+	});
 }
 
 /**
@@ -195,13 +198,12 @@ export async function renderQuestion(question: Question): Promise<RenderedChat> 
 		mask: { recipient: false },
 		messages: await Promise.all(
 			question.messages.map(async (message) => ({
-				content: message.content,
+				content: await renderContent(message),
 				date: renderTime(message.date),
 				mask: { content: false, date: false, platform: false, reaction: false },
 				participant: message.participant,
 				platform: renderPlatform(message.platform),
-				reaction: message.reaction,
-				type: await classifyMessage(message)
+				reaction: message.reaction
 			}))
 		),
 		recipient: question.recipient

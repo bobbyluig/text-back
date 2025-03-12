@@ -2,10 +2,10 @@
 	import IconPlay from '~icons/material-symbols/play-circle';
 
 	interface Props {
-		src: string;
+		data: string;
 	}
 
-	const { src }: Props = $props();
+	const { data }: Props = $props();
 
 	let paused = $state(true);
 	let video: HTMLVideoElement;
@@ -29,7 +29,7 @@
 <div class="relative">
 	<video
 		bind:this={video}
-		{src}
+		src={data}
 		class="cursor-pointer rounded-2xl"
 		onclick={togglePlay}
 		onended={onEnded}
