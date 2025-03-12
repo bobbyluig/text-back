@@ -29,7 +29,7 @@
 </script>
 
 <div class="relative">
-	<button class="flex items-center px-4 py-2 gap-1 rounded-2xl cursor-pointer" onclick={togglePlay}>
+	<button class="flex items-center px-4 py-2 rounded-2xl cursor-pointer" onclick={togglePlay}>
 		<IconWaveform class="w-10 h-10" />
 		{#if paused}
 			<IconPlay class="w-10 h-10" />
