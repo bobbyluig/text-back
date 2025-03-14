@@ -10,6 +10,9 @@
 	let paused = $state(true);
 	let video: HTMLVideoElement;
 
+	/**
+	 * Toggles video playback.
+	 */
 	const togglePlay = () => {
 		if (video.paused) {
 			video.play();
@@ -20,6 +23,9 @@
 		}
 	};
 
+	/**
+	 * Resets the video playback state.
+	 */
 	const onEnded = () => {
 		video.currentTime = 0;
 		paused = true;

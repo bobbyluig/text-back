@@ -1,11 +1,18 @@
 <script lang="ts">
 	import ChatContainer from '$lib/components/ChatContainer.svelte';
-	import { QuestionBank, type Question } from '$lib/question';
+	import { QuestionBank, type Question, type QuestionVariant } from '$lib/question';
 	import { renderQuestion, revealChat, type RenderedChat } from '$lib/render';
+	import { getSeedFromUrl } from '$lib/seed';
 	import { fade } from 'svelte/transition';
 	import IconSend from '~icons/material-symbols/send';
+	import type { PageProps } from './$types';
 
-	const questionBank = new QuestionBank({ initialSeed: '' });
+	const { data }: PageProps = $props();
+	const { proposal } = data;
+
+	const seed = getSeedFromUrl();
+	const questionBank = new QuestionBank({ initialSeed: seed });
+	const variants: Set<QuestionVariant> = new Set();
 
 	let chat: RenderedChat | undefined = $state();
 	let question: Question | undefined = $state();
@@ -13,11 +20,17 @@
 	let streak: number = $state(0);
 	let welcome: boolean = $state(true);
 
-	function submit(answer: string) {
+	/**
+	 * Called by the child to submit an answer. This will either reveal the current chat, or go to the
+	 * next question if the previous state was a revealed chat.
+	 */
+	function submit(answer: string): void {
+		// This should not happen.
 		if (chat === undefined || question === undefined) {
 			return;
 		}
 
+		// When revealing the chat, we explicitly set choices to an empty list.
 		if (chat.choices.length === 0) {
 			nextQuestion();
 		} else {
@@ -38,14 +51,32 @@
 		}
 	}
 
-	async function nextQuestion() {
+	/**
+	 * Renders the next question.
+	 */
+	async function nextQuestion(): Promise<void> {
+		// Unload the existing chat to show a loading indicator.
 		chat = undefined;
 		question = undefined;
-		const q = await questionBank.getQuestion();
+
+		// Determines whether we should propose. We must have proposal mode enabled in the backend, the
+		// player must have answered at least ten question correctly, and we must have seen all question
+		// variants (excluding the proposal).
+		const q =
+			proposal !== undefined && score >= 10 && variants.size === 6
+				? proposal
+				: await questionBank.getQuestion();
+		variants.add(q.variant);
+
+		// Wait until contents are preloaded. This will minimize layout shifts during animation.
 		const c = await renderQuestion(q);
+
+		// Display the new chat.
 		chat = c;
 		question = q;
 	}
+
+	// On page load, we can already prepare the first question.
 	nextQuestion();
 </script>
 

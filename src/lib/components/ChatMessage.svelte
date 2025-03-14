@@ -17,6 +17,9 @@
 	const isSender = message.participant !== recipient;
 
 	let reaction: string = $state('');
+
+	// Reaction animation is handled separately because we also want to use a CSS transition on the
+	// margin of the message.
 	setTimeout(
 		() => {
 			reaction = message.reaction;

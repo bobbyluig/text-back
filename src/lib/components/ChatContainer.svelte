@@ -19,13 +19,19 @@
 	let description: string = $state('');
 	let messages: Array<RenderedChatMessage> = $state([]);
 
+	/**
+	 * Animates messages in the chat.
+	 */
 	async function animateMessages() {
+		// If animations are disabled (revealing the chat), immediately set everything.
 		if (!animate) {
 			messages.push(...chat.messages);
 			description = chat.description;
 			return;
 		}
 
+		// Add messages with a one second delay. For messages with a reaction, we delay by another
+		// second after the message for the reaction animation.
 		for (const message of chat.messages) {
 			await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 			messages.push(message);
@@ -34,11 +40,14 @@
 			}
 		}
 
+		// For consistency, wait one second before showing the question description, and wait one more
+		// second before allowing user input.
 		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 		description = chat.description;
 		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
 	}
 
+	// Enable the input after completing message animation.
 	animateMessages().then(() => {
 		disabled = false;
 	});

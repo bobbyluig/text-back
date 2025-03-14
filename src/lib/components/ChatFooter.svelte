@@ -14,16 +14,26 @@
 
 	let answerIndex: number = $state(0);
 
+	/**
+	 * Cycles through the answer, triggering the typewriter animation.
+	 */
 	function changeAnswer() {
 		if (choices.length > 1) {
 			answerIndex = (answerIndex + 1) % choices.length;
 		}
 	}
 
+	/**
+	 * Invokes the submit function with the currently selected answer choice. If we are revealing, we
+	 * can submit anything.
+	 */
 	function submitAnswer() {
 		submit(choices.length > 0 ? choices[answerIndex] : '');
 	}
 
+	/**
+	 * A typewriter animation for text.
+	 */
 	function typewriter(node: HTMLElement, { speed = 1 }: { speed?: number }) {
 		const text = node.textContent ?? '';
 		const characters = Array.from(text);

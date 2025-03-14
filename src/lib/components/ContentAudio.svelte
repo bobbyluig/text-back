@@ -12,6 +12,9 @@
 	let audio: HTMLAudioElement;
 	let paused = $state(true);
 
+	/**
+	 * Toggles audio playback.
+	 */
 	function togglePlay() {
 		if (audio.paused) {
 			audio.play();
@@ -22,6 +25,9 @@
 		}
 	}
 
+	/**
+	 * Resets the audio playback state.
+	 */
 	function onEnded() {
 		audio.currentTime = 0;
 		paused = true;
