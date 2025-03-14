@@ -16,12 +16,7 @@ export type RenderedChat = {
  * A rendered chat message.
  */
 export type RenderedChatMessage = {
-	content:
-		| { type: 'audio'; data: string }
-		| { type: 'image'; data: string; metadata: { height: number; width: number } }
-		| { type: 'link'; data: string }
-		| { type: 'text'; data: string }
-		| { type: 'video'; data: string; metadata: { height: number; width: number } };
+	content: { data: string; type: 'audio' | 'image' | 'link' | 'text' | 'video' };
 	date: string;
 	mask: { content: boolean; date: boolean; platform: boolean; reaction: boolean };
 	participant: string;
@@ -37,41 +32,6 @@ export function getMediaUrl(content: string): string {
 }
 
 /**
- * Preloads an audio file. The returned promise resolves when the audio has been loaded.
- */
-export async function preloadAudio(url: string): Promise<void> {
-	return new Promise<void>((resolve) => {
-		const audio = new Audio();
-		audio.src = url;
-		audio.preload = 'auto';
-		audio.oncanplaythrough = () => resolve();
-	});
-}
-
-/**
- * Preloads an image file. The returned promise resolves when the image has been loaded.
- */
-export async function preloadImage(url: string): Promise<void> {
-	return new Promise<void>((resolve) => {
-		const img = new Image();
-		img.src = url;
-		img.onload = () => resolve();
-	});
-}
-
-/**
- * Preloads a video file. The returned promise resolves when the video has been loaded.
- */
-export async function preloadVideo(url: string): Promise<void> {
-	return new Promise<void>((resolve) => {
-		const video = document.createElement('video');
-		video.src = url;
-		video.preload = 'auto';
-		video.oncanplaythrough = () => resolve();
-	});
-}
-
-/**
  * Returns the content of a message and preloads any necessary assets.
  */
 export async function renderContent(
@@ -79,8 +39,8 @@ export async function renderContent(
 ): Promise<RenderedChatMessage['content']> {
 	if (!message.isMedia) {
 		return message.content.startsWith('http://') || message.content.startsWith('https://')
-			? { type: 'link', data: message.content }
-			: { type: 'text', data: message.content };
+			? { data: message.content, type: 'link' }
+			: { data: message.content, type: 'text' };
 	}
 
 	const audioExtension = ['.aac', '.mp3', '.wav'];
@@ -89,7 +49,7 @@ export async function renderContent(
 			const audio = new Audio();
 			audio.src = getMediaUrl(message.content);
 			audio.preload = 'auto';
-			audio.oncanplaythrough = () => resolve({ type: 'audio', data: audio.src });
+			audio.oncanplaythrough = () => resolve({ data: audio.src, type: 'audio' });
 		});
 	}
 
@@ -98,37 +58,27 @@ export async function renderContent(
 		return new Promise((resolve) => {
 			const img = new Image();
 			img.src = getMediaUrl(message.content);
-			img.onload = () =>
-				resolve({
-					type: 'image',
-					data: img.src,
-					metadata: { height: img.height, width: img.width }
-				});
+			img.onload = () => resolve({ data: img.src, type: 'image' });
 		});
 	}
 
 	const videoExtensions = ['.mp4', '.webm'];
-	if (!videoExtensions.some((extension) => message.content.endsWith(extension))) {
-		throw new Error('Unsupported media extension');
+	if (videoExtensions.some((extension) => message.content.endsWith(extension))) {
+		return new Promise((resolve) => {
+			const video = document.createElement('video');
+			video.src = getMediaUrl(message.content);
+			video.preload = 'auto';
+			video.onloadedmetadata = () => {
+				if (video.videoHeight > 0 && video.videoWidth > 0) {
+					resolve({ data: video.src, type: 'video' });
+				} else {
+					resolve({ data: video.src, type: 'audio' });
+				}
+			};
+		});
 	}
 
-	return new Promise((resolve) => {
-		const video = document.createElement('video');
-		video.src = getMediaUrl(message.content);
-		video.preload = 'metadata';
-		video.onloadedmetadata = () => {
-			const hasVideo = video.videoHeight > 0 && video.videoWidth > 0;
-			if (!hasVideo) {
-				resolve({ type: 'audio', data: video.src });
-			} else {
-				resolve({
-					type: 'video',
-					data: video.src,
-					metadata: { height: video.videoHeight, width: video.videoWidth }
-				});
-			}
-		};
-	});
+	throw new Error('Unsupported extension');
 }
 
 /**

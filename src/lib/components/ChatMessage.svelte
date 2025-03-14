@@ -41,7 +41,11 @@
 	</div>
 	<div
 		class="rounded-2xl max-w-[70%] relative break-words
-		{isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
+		{['image', 'video'].some((type) => type === message.content.type)
+			? ''
+			: isSender
+				? 'bg-green-500 text-white'
+				: 'bg-gray-200 text-gray-800'}"
 	>
 		{#if message.mask.content}
 			<ContentText data={'Message Hidden'} />

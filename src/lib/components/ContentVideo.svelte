@@ -30,7 +30,7 @@
 	<video
 		bind:this={video}
 		src={data}
-		class="cursor-pointer rounded-2xl"
+		class="cursor-pointer rounded-2xl max-h-[200px]"
 		onclick={togglePlay}
 		onended={onEnded}
 	>
