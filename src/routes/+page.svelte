@@ -9,7 +9,6 @@
 
 	const { data }: PageProps = $props();
 	const { proposal } = data;
-	console.log(proposal);
 
 	const seed = getSeedFromUrl();
 	const questionBank = new QuestionBank({ initialSeed: seed });
