@@ -62,7 +62,8 @@
 		// Determines whether we should propose. We must have proposal mode enabled in the backend, the
 		// player must have answered at least ten question correctly, and we must have seen all question
 		// variants (excluding the proposal). We overwrite the dates in the proposal messages to now to
-		// make it appear like the messages are sent in real time.
+		// make it appear like the messages are sent in real time. The expected time to see all variants
+		// is 14.7 (the coupon collector problem), which is reasonable.
 		question =
 			proposal === undefined || score < 10 || variants.size < 6
 				? await questionBank.getQuestion()
