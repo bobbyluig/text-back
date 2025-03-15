@@ -7,8 +7,8 @@
 
 	const { data }: Props = $props();
 
-	let paused = $state(true);
 	let video: HTMLVideoElement;
+	let paused = $state(true);
 
 	/**
 	 * Toggles video playback.

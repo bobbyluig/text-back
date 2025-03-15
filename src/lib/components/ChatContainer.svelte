@@ -20,9 +20,16 @@
 	let messages: Array<RenderedChatMessage> = $state([]);
 
 	/**
+	 * A helper function to sleep the specified time.
+	 */
+	async function sleep(duration: number): Promise<void> {
+		await new Promise<void>((resolve) => setTimeout(resolve, duration));
+	}
+
+	/**
 	 * Animates messages in the chat.
 	 */
-	async function animateMessages() {
+	async function animateMessages(): Promise<void> {
 		// If animations are disabled (revealing the chat), immediately set everything.
 		if (!animate) {
 			messages.push(...chat.messages);
@@ -31,20 +38,22 @@
 		}
 
 		// Add messages with a one second delay. For messages with a reaction, we delay by another
-		// second after the message for the reaction animation.
+		// second after the message for the reaction animation. The initial delay is to account for the
+		// fade in from the chat container.
+		await sleep(400);
 		for (const message of chat.messages) {
-			await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+			await sleep(1000);
 			messages.push(message);
 			if (message.reaction) {
-				await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+				await sleep(1000);
 			}
 		}
 
 		// For consistency, wait one second before showing the question description, and wait one more
 		// second before allowing user input.
-		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+		await sleep(1000);
 		description = chat.description;
-		await new Promise<void>((resolve) => setTimeout(resolve, 1000));
+		await sleep(1000);
 	}
 
 	// Enable the input after completing message animation.

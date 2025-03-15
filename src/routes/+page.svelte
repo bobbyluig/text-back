@@ -9,6 +9,7 @@
 
 	const { data }: PageProps = $props();
 	const { proposal } = data;
+	console.log(proposal);
 
 	const seed = getSeedFromUrl();
 	const questionBank = new QuestionBank({ initialSeed: seed });
@@ -57,23 +58,22 @@
 	async function nextQuestion(): Promise<void> {
 		// Unload the existing chat to show a loading indicator.
 		chat = undefined;
-		question = undefined;
 
 		// Determines whether we should propose. We must have proposal mode enabled in the backend, the
 		// player must have answered at least ten question correctly, and we must have seen all question
-		// variants (excluding the proposal).
-		const q =
-			proposal !== undefined && score >= 10 && variants.size === 6
-				? proposal
-				: await questionBank.getQuestion();
-		variants.add(q.variant);
+		// variants (excluding the proposal). We overwrite the dates in the proposal messages to now to
+		// make it appear like the messages are sent in real time.
+		question =
+			proposal === undefined || score < 10 || variants.size < 6
+				? await questionBank.getQuestion()
+				: {
+						...proposal,
+						messages: proposal.messages.map((message) => ({ ...message, date: new Date() }))
+					};
+		variants.add(question.variant);
 
-		// Wait until contents are preloaded. This will minimize layout shifts during animation.
-		const c = await renderQuestion(q);
-
-		// Display the new chat.
-		chat = c;
-		question = q;
+		// Render the question and preload all asset to minimize layout shifts during animation.
+		chat = await renderQuestion(question);
 	}
 
 	// On page load, we can already prepare the first question.
