@@ -1,5 +1,6 @@
 import type { Question } from '$lib/question';
 import { Random } from '$lib/random';
+import { split } from '$lib/render';
 import { getMetadata } from '$lib/server/metadata';
 import {
 	convertMessage,
@@ -108,7 +109,7 @@ export class ReactVariantGenerator implements VariantGenerator {
 		const alternative = await invokeModel(rng, prompt);
 		if (
 			alternative === answer ||
-			[...alternative].length !== 1 ||
+			split(alternative).length !== 1 ||
 			!/\p{Extended_Pictographic}/gu.test(alternative)
 		) {
 			throw RETRY_GENERATION;

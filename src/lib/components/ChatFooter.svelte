@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { split } from '$lib/render';
 	import { slide } from 'svelte/transition';
 	import IconSend from '~icons/material-symbols/send';
 
@@ -36,7 +37,7 @@
 	 */
 	function typewriter(node: HTMLElement, { speed = 1 }: { speed?: number }) {
 		const text = node.textContent ?? '';
-		const characters = Array.from(text);
+		const characters = split(text);
 		return {
 			duration: characters.length / (speed * 0.01),
 			tick: (t: number) => {

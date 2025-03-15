@@ -211,3 +211,10 @@ export function revealChat(chat: RenderedChat): RenderedChat {
 		}))
 	};
 }
+
+/**
+ * Splits a string into characters, taking into consideration emojis.
+ */
+export function split(s: string): Array<string> {
+	return [...new Intl.Segmenter().segment(s)].map((x) => x.segment);
+}
