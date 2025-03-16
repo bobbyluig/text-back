@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { split } from '$lib/render';
+	import { typewriter } from '$lib/render';
 	import { slide } from 'svelte/transition';
 	import IconSend from '~icons/material-symbols/send';
 
@@ -30,21 +30,6 @@
 	 */
 	function submitAnswer() {
 		submit(choices.length > 0 ? choices[answerIndex] : '');
-	}
-
-	/**
-	 * A typewriter animation for text.
-	 */
-	function typewriter(node: HTMLElement, { speed = 1 }: { speed?: number }) {
-		const text = node.textContent ?? '';
-		const characters = split(text);
-		return {
-			duration: characters.length / (speed * 0.01),
-			tick: (t: number) => {
-				const i = Math.trunc(characters.length * t);
-				node.textContent = characters.slice(0, i).join('');
-			}
-		};
 	}
 </script>
 

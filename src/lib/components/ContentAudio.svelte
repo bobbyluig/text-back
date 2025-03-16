@@ -45,5 +45,5 @@
 		<IconWaveform class="w-10 h-10" />
 	</button>
 
-	<audio bind:this={audio} src={data} onended={onEnded} class="hidden"></audio>
+	<audio bind:this={audio} class="hidden" onended={onEnded} preload="auto" src={data}></audio>
 </div>

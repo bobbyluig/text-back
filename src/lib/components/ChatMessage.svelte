@@ -4,8 +4,9 @@
 	import ContentLink from '$lib/components/ContentLink.svelte';
 	import ContentText from '$lib/components/ContentText.svelte';
 	import ContentVideo from '$lib/components/ContentVideo.svelte';
-	import { type RenderedChatMessage } from '$lib/render';
-	import { fade, slide } from 'svelte/transition';
+	import { type RenderedChatMessage, sleep, slideDelayed } from '$lib/render';
+	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	interface Props {
 		animate: boolean;
@@ -16,24 +17,28 @@
 	const { animate, message, recipient }: Props = $props();
 	const isSender = message.participant !== recipient;
 
+	let element: HTMLElement;
 	let reaction: string = $state('');
 
-	// Reaction animation is handled separately because we also want to use a CSS transition on the
-	// margin of the message.
-	setTimeout(
-		() => {
+	// Transition is handled separately because we also want to preload the mounted
+	onMount(() => {
+		if (animate) {
+			slideDelayed(element, { delay: 1000 });
+			sleep(2000).then(() => {
+				reaction = message.reaction;
+			});
+		} else {
 			reaction = message.reaction;
-		},
-		animate ? 1000 : 0
-	);
+		}
+	});
 </script>
 
 <div
+	bind:this={element}
 	class="grid
 	{animate ? 'transition-[margin]' : ''}
 	{isSender ? 'justify-items-end' : 'justify-items-start'} 
 	{reaction ? 'mb-4' : ''}"
-	in:slide={{ duration: animate ? 400 : 0 }}
 >
 	<div class="text-xs text-gray-500 mb-1">
 		<div>

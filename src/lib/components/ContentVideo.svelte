@@ -39,6 +39,7 @@
 		class="cursor-pointer rounded-2xl max-h-[200px]"
 		onclick={togglePlay}
 		onended={onEnded}
+		preload="auto"
 	>
 		<track kind="captions" />
 	</video>

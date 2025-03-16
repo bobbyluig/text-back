@@ -2,7 +2,7 @@
 	import ChatFooter from '$lib/components/ChatFooter.svelte';
 	import ChatHeader from '$lib/components/ChatHeader.svelte';
 	import Message from '$lib/components/ChatMessage.svelte';
-	import type { RenderedChat, RenderedChatMessage } from '$lib/render';
+	import { sleep, type RenderedChat, type RenderedChatMessage } from '$lib/render';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
@@ -20,13 +20,6 @@
 	let messages: Array<RenderedChatMessage> = $state([]);
 
 	/**
-	 * A helper function to sleep the specified time.
-	 */
-	async function sleep(duration: number): Promise<void> {
-		await new Promise<void>((resolve) => setTimeout(resolve, duration));
-	}
-
-	/**
 	 * Animates messages in the chat.
 	 */
 	async function animateMessages(): Promise<void> {
@@ -37,16 +30,14 @@
 			return;
 		}
 
-		// Add messages with a one second delay. For messages with a reaction, we delay by another
-		// second after the message for the reaction animation. The initial delay is to account for the
-		// fade in from the chat container.
+		// We add messages with a one second delay if they do not contain a reaction, and a two second
+		// delay if they do have a reaction. The initial delay is to account for the fade in from the
+		// chat container. Note that the message is first mounted, but begins its transition one second
+		// later intentionally to allow preloading. This is particularly necessary for videos.
 		await sleep(400);
 		for (const message of chat.messages) {
-			await sleep(1000);
 			messages.push(message);
-			if (message.reaction) {
-				await sleep(1000);
-			}
+			await sleep(message.reaction ? 2000 : 1000);
 		}
 
 		// For consistency, wait one second before showing the question description, and wait one more

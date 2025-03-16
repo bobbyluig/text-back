@@ -2,9 +2,10 @@
 @import 'tailwindcss';
 
 @theme {
+	--default-transition-timing-function: var(--ease-out);
+	--font-mono: 'Roboto Mono', monospace;
 	--font-sans: 'Roboto', sans-serif;
 	--font-serif: 'Roboto Serif', serif;
-	--font-mono: 'Roboto Mono', monospace;
 }
 
 @plugin 'tailwind-scrollbar';

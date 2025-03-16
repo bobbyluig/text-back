@@ -213,8 +213,66 @@ export function revealChat(chat: RenderedChat): RenderedChat {
 }
 
 /**
+ * Returns a promise that resolves after the specified time.
+ */
+export async function sleep(duration: number): Promise<void> {
+	await new Promise<void>((resolve) => setTimeout(resolve, duration));
+}
+
+/**
+ * Performs a slide transition on the element. This is intended to be called right after the element
+ * is mounted. One special behavior of this transition function is that the height is computed after
+ * the delay, which effectively allows the element to preload and reflow prior to transition start.
+ */
+export async function slideDelayed(
+	element: HTMLElement,
+	{ delay = 0, duration = 400 }: { delay?: number; duration?: number } = {}
+): Promise<void> {
+	// Set initial transition properties. In particular, we want to make sure that the height of the
+	// element is zero until we decided to start the transition.
+	element.style.setProperty('max-height', '0px');
+	element.style.setProperty('overflow', 'hidden');
+	element.style.setProperty('transition-duration', `${duration}ms`);
+	element.style.setProperty('transition-property', 'max-height');
+	element.style.setProperty('transition-timing-function', 'var(--ease-out)');
+
+	// Wait for the delay, potentially allowing the element to fully load.
+	await sleep(delay);
+
+	// Start the transition.
+	element.style.setProperty('max-height', `${element.scrollHeight}px`);
+
+	// Wait for the transition to complete.
+	await new Promise((resolve) => {
+		element.addEventListener('transitionend', resolve);
+	});
+
+	// Clean up all added properties.
+	element.style.removeProperty('max-height');
+	element.style.removeProperty('overflow');
+	element.style.removeProperty('transition-duration');
+	element.style.removeProperty('transition-property');
+	element.style.removeProperty('transition-timing-function');
+}
+
+/**
  * Splits a string into characters, taking into consideration emojis.
  */
 export function split(s: string): Array<string> {
 	return [...new Intl.Segmenter().segment(s)].map((x) => x.segment);
+}
+
+/**
+ * A typewriter animation for text.
+ */
+export function typewriter(node: HTMLElement, { speed = 1 }: { speed?: number } = {}) {
+	const text = node.textContent ?? '';
+	const characters = split(text);
+	return {
+		duration: characters.length / (speed * 0.01),
+		tick: (t: number) => {
+			const i = Math.trunc(characters.length * t);
+			node.textContent = characters.slice(0, i).join('');
+		}
+	};
 }
