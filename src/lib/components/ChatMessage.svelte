@@ -4,8 +4,8 @@
 	import ContentLink from '$lib/components/ContentLink.svelte';
 	import ContentText from '$lib/components/ContentText.svelte';
 	import ContentVideo from '$lib/components/ContentVideo.svelte';
-	import { type RenderedChatMessage, sleep, slideDelayed } from '$lib/render';
-	import { onMount } from 'svelte';
+	import { type RenderedChatMessage, sleep, slide } from '$lib/render';
+	import type { Action } from 'svelte/action';
 	import { fade } from 'svelte/transition';
 
 	interface Props {
@@ -15,30 +15,34 @@
 	}
 
 	const { animate, message, recipient }: Props = $props();
+	const background =
+		message.mask.content || !['image', 'video'].some((type) => type === message.content.type);
 	const isSender = message.participant !== recipient;
 
-	let element: HTMLElement;
 	let reaction: string = $state('');
 
-	// Transition is handled separately because we also want to preload the mounted
-	onMount(() => {
+	/**
+	 * Part of the transition is handled manually because we want to fully preload the element before
+	 * showing it and handle margin transitions for reactions.
+	 */
+	const slideTransition: Action = (node) => {
 		if (animate) {
-			slideDelayed(element, { delay: 1000 });
+			slide(node, { delay: 1000 });
 			sleep(2000).then(() => {
 				reaction = message.reaction;
 			});
 		} else {
 			reaction = message.reaction;
 		}
-	});
+	};
 </script>
 
 <div
-	bind:this={element}
 	class="grid
 	{animate ? 'transition-[margin]' : ''}
 	{isSender ? 'justify-items-end' : 'justify-items-start'} 
 	{reaction ? 'mb-4' : ''}"
+	use:slideTransition
 >
 	<div class="text-xs text-gray-500 mb-1">
 		<div>
@@ -49,11 +53,7 @@
 	</div>
 	<div
 		class="rounded-2xl max-w-[70%] relative break-words
-		{['image', 'video'].some((type) => type === message.content.type)
-			? ''
-			: isSender
-				? 'bg-green-500 text-white'
-				: 'bg-gray-200 text-gray-800'}"
+		{!background ? '' : isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 	>
 		{#if message.mask.content}
 			<ContentText data={'Message Hidden'} />

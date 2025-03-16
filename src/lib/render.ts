@@ -224,7 +224,7 @@ export async function sleep(duration: number): Promise<void> {
  * is mounted. One special behavior of this transition function is that the height is computed after
  * the delay, which effectively allows the element to preload and reflow prior to transition start.
  */
-export async function slideDelayed(
+export async function slide(
 	element: HTMLElement,
 	{ delay = 0, duration = 400 }: { delay?: number; duration?: number } = {}
 ): Promise<void> {

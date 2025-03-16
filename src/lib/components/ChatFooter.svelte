@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { typewriter } from '$lib/render';
-	import { slide } from 'svelte/transition';
+	import { slide, typewriter } from '$lib/render';
+	import type { Action } from 'svelte/action';
 	import IconSend from '~icons/material-symbols/send';
 
 	interface Props {
@@ -31,11 +31,20 @@
 	function submitAnswer() {
 		submit(choices.length > 0 ? choices[answerIndex] : '');
 	}
+
+	/**
+	 * Our custom slide transition for consistency when displaying the description.
+	 */
+	const slideTransition: Action = (node) => {
+		if (animate) {
+			slide(node);
+		}
+	};
 </script>
 
 <div class="p-4 bg-white rounded-b-3xl">
 	{#if description}
-		<div class="mb-1 text-gray-500 text-xs" in:slide={{ duration: animate ? 400 : 0 }}>
+		<div class="mb-1 text-gray-500 text-xs" use:slideTransition>
 			{description}
 		</div>
 	{/if}

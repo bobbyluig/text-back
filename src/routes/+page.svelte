@@ -11,7 +11,7 @@
 	const { proposal } = data;
 
 	const seed = getSeedFromUrl();
-	const questionBank = new QuestionBank({ initialSeed: '70' });
+	const questionBank = new QuestionBank({ initialSeed: seed });
 	const variants: Set<QuestionVariant> = new Set();
 
 	let chat: RenderedChat | undefined = $state();
@@ -71,13 +71,6 @@
 						messages: proposal.messages.map((message) => ({ ...message, date: new Date() }))
 					};
 		variants.add(question.variant);
-
-		question.messages[0].isMedia = true;
-		question.messages[0].content = 'messenger/651da6dc-474a-48c3-8b56-72f45eccdb15.mp4';
-		question.messages[1].isMedia = true;
-		question.messages[1].content = 'messenger/c502bf4a-11ce-43b8-8d5c-5a2c96ce6ac2.gif';
-		question.messages[2].isMedia = true;
-		question.messages[2].content = 'instagram/audioclip172697460800025515_549625730911265.mp4';
 
 		// Render the question and preload all asset to minimize layout shifts during animation.
 		chat = await renderQuestion(question);
