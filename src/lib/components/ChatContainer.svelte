@@ -61,9 +61,9 @@
 	<ChatHeader mask={chat.mask.recipient} recipient={chat.recipient} {score} {streak} />
 
 	<div class="flex flex-col-reverse flex-1 overflow-y-scroll scrollbar-none p-4">
-		<div class="grid gap-4">
-			{#each messages as message}
-				<Message {animate} {message} recipient={chat.recipient} />
+		<div class="grid">
+			{#each messages as message, index}
+				<Message {animate} {index} {message} recipient={chat.recipient} />
 			{/each}
 		</div>
 	</div>
