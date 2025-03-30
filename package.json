@@ -1,7 +1,7 @@
 {
 	"name": "text-back",
 	"private": true,
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
@@ -15,7 +15,7 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"preview": "vite preview",
 		"reset": "rm -f prisma/messages.db && rm -rf static/media/ && prisma migrate dev && prisma generate",
-		"start": "vite build && node --env-file=.env build"
+		"start": "node --env-file=.env build"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
