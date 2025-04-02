@@ -30,7 +30,7 @@ async function main(): Promise<void> {
 		throw new Error('Usage: tsx import.ts <platform> <input>');
 	}
 
-	const platform = args[0].toLowerCase();
+	const platform = args[0];
 	const input = args[1];
 
 	const importer = importers.get(platform);
