@@ -66,7 +66,7 @@ async function importMeta(
 	const bar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 	bar.start(data.messages.length, 0);
 
-	for (const message of data.messages) {
+	for (const message of data.messages.reverse()) {
 		const text =
 			message.share?.link !== undefined
 				? decodeString(message.share?.link)
