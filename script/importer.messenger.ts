@@ -20,9 +20,7 @@ type MessengerConversation = {
 };
 
 /**
- * Imports data from a Messenger end-to-end encrypted export. Assumes that the input is the path of
- * a JSON file with the desired conversation. Any associated media files should be in a folder named
- *  `media` in the same directory.
+ * Imports data from a Messenger end-to-end encrypted export.
  */
 export async function importMessenger(dataPath: string, outMediaPath: string): Promise<void> {
 	const data = JSON.parse(fs.readFileSync(dataPath, 'utf8')) as MessengerConversation;

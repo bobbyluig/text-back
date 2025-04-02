@@ -2,8 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import url from 'url';
 import { prisma, type Importer } from './importer.common';
-import { importInstagram } from './importer.instagram';
 import { importMessenger } from './importer.messenger';
+import { importInstagram, importMessengerLegacy } from './importer.meta';
 
 /**
  * Polyfill for `__dirname` when using ESM modules.
@@ -15,7 +15,8 @@ const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
  */
 const importers = new Map<string, Importer>([
 	['instagram', importInstagram],
-	['messenger', importMessenger]
+	['messenger', importMessenger],
+	['messengerLegacy', importMessengerLegacy]
 ]);
 
 /**

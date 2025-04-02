@@ -2,11 +2,12 @@ import cliProgress from 'cli-progress';
 import fs from 'fs';
 import path from 'path';
 import { COPY_CONCURRENCY, normalizeEmoji, prisma } from './importer.common';
+import { MessagePlatform } from '@prisma/client';
 
 /**
- * Data structure for a Instagram conversation.
+ * Data structure for a Meta conversation. This covers Instagram and legacy Messenger data.
  */
-type InstagramConversation = {
+type MetaConversation = {
 	messages: Array<{
 		audio_files?: Array<{ uri: string }>;
 		content?: string;
@@ -21,15 +22,31 @@ type InstagramConversation = {
 };
 
 /**
- * Imports data from an Instagram conversation. The data path is assumed to point to a JSON file
- * containing the conversation. Assumes that any associated media files are in the same directory
- * under  `audio`, `photos`, and `videos`.
+ * Imports data from an Instagram conversation.
  */
 export async function importInstagram(dataPath: string, outMediaPath: string): Promise<void> {
-	const data = JSON.parse(fs.readFileSync(dataPath, 'utf8')) as InstagramConversation;
+	return importMeta(dataPath, outMediaPath, MessagePlatform.INSTAGRAM);
+}
+
+/**
+ * Imports data from a legacy (not end-to-end encrypted) Messenger conversation.
+ */
+export async function importMessengerLegacy(dataPath: string, outMediaPath: string): Promise<void> {
+	return importMeta(dataPath, outMediaPath, MessagePlatform.MESSENGER);
+}
+
+/**
+ * Internal function to import data from a Meta conversation.
+ */
+async function importMeta(
+	dataPath: string,
+	outMediaPath: string,
+	platform: MessagePlatform
+): Promise<void> {
+	const data = JSON.parse(fs.readFileSync(dataPath, 'utf8')) as MetaConversation;
 	const mediaPath = path.dirname(dataPath);
 
-	outMediaPath = path.join(outMediaPath, 'instagram');
+	outMediaPath = path.join(outMediaPath, platform.toLowerCase());
 	if (!fs.existsSync(outMediaPath)) {
 		fs.mkdirSync(outMediaPath, { recursive: true });
 	}
@@ -91,11 +108,13 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 			data: {
 				medias: {
 					createMany: {
-						data: medias.map((media) => ({ uri: `instagram/${path.basename(media.uri)}` }))
+						data: medias.map((media) => ({
+							uri: `${platform.toLowerCase()}/${path.basename(media.uri)}`
+						}))
 					}
 				},
 				participantId,
-				platform: 'INSTAGRAM',
+				platform,
 				reactions: {
 					createMany: {
 						data: (message.reactions ?? [])
@@ -139,7 +158,7 @@ export async function importInstagram(dataPath: string, outMediaPath: string): P
 }
 
 /**
- * Decodes a string from Instagram which is oddly encoded.
+ * Decodes a string from Meta which is oddly encoded.
  */
 function decodeString(input: string): string {
 	const codeArray = input.split('').map((char) => char.charCodeAt(0));
