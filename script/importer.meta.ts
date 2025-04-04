@@ -104,6 +104,22 @@ async function importMeta(
 			continue;
 		}
 
+		if (text.endsWith('(edited)')) {
+			const previousMessage = await prisma.message.findFirst({
+				where: { participantId, platform },
+				orderBy: { timestamp: 'desc' }
+			});
+			if (previousMessage !== null && previousMessage.type === 'TEXT') {
+				const newText = text.slice(0, -9);
+				await prisma.message.updateMany({
+					data: { text: newText, words: newText.trim().split(/\s+/).length },
+					where: { id: previousMessage?.id }
+				});
+			}
+			bar.increment();
+			continue;
+		}
+
 		const createPromise = prisma.message.create({
 			data: {
 				medias: {
