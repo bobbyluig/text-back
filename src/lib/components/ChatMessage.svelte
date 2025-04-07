@@ -56,7 +56,7 @@
 			</div>
 		</div>
 		<div
-			class="rounded-2xl max-w-[70%] relative break-words
+			class="rounded-2xl min-w-0 max-w-[70%] relative break-words
 		{!background ? '' : isSender ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800'}"
 		>
 			{#if message.mask.content}
