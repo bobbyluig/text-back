@@ -64,7 +64,7 @@
 		// make it appear like the messages are sent in real time. The expected time to see all variants
 		// is 14.7 (the coupon collector problem), which is reasonable.
 		question =
-			proposal === undefined || score < 10 || variants.size < 6
+			proposal === undefined || variants.has(proposal.variant) || score < 10 || variants.size < 6
 				? await questionBank.getQuestion()
 				: {
 						...proposal,
