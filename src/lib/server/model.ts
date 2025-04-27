@@ -26,7 +26,8 @@ const SYSTEM_MESSAGE_BASE = [
  * The system message passed to every model call which includes additional conversation-specific
  * and participant-specific context.
  */
-const SYSTEM_MESSAGE = SYSTEM_MESSAGE_BASE + ' ' + SYSTEM_MESSAGE_EXTRA;
+const SYSTEM_MESSAGE =
+	SYSTEM_MESSAGE_BASE + (SYSTEM_MESSAGE_EXTRA === '' ? '' : ` ${SYSTEM_MESSAGE_EXTRA}`);
 
 /**
  * Generates a string list response to the given prompt using Ollama running locally. May throw an
